@@ -1,0 +1,322 @@
+@import "tailwindcss";
+
+
+@layer base {
+  body {
+    background-color: #020c14;
+    color: #f0f9ff;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* ── Light Theme Body Override ── */
+  body.theme-light {
+    background-color: #eef6fa;
+    color: #1e293b;
+  }
+
+  /* Medical animated background — dark */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 30%, rgba(6, 182, 212, 0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at 80% 70%, rgba(16, 185, 129, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(14, 116, 144, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 70% 50% at 10% 90%, rgba(6, 78, 59, 0.06) 0%, transparent 70%);
+    animation: medicalPulse 12s ease-in-out infinite alternate;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  body.theme-light::before {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 30%, rgba(14, 116, 144, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at 80% 70%, rgba(5, 150, 105, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(8, 145, 178, 0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 70% 50% at 10% 90%, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
+  }
+
+  @keyframes medicalPulse {
+    0%   { opacity: 1; background-position: 0% 0%; }
+    50%  { opacity: 0.85; }
+    100% { opacity: 1; background-position: 100% 100%; }
+  }
+}
+
+/* ── ECG Heartbeat animation ── */
+.ecg-line {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.12;
+}
+
+.ecg-line svg {
+  width: 200%;
+  height: 100%;
+  animation: ecgScroll 6s linear infinite;
+}
+
+@keyframes ecgScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Floating medical cross icons ── */
+.med-cross {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: floatCross 18s ease-in-out infinite;
+  color: rgba(6, 182, 212, 0.18);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.theme-light .med-cross {
+  color: rgba(14, 116, 144, 0.15);
+}
+
+.med-cross:nth-child(1) { left: 5%;  top: 15%; animation-delay: 0s;   animation-duration: 20s; font-size: 16px; }
+.med-cross:nth-child(2) { left: 85%; top: 25%; animation-delay: 3s;   animation-duration: 22s; font-size: 20px; opacity: 0; }
+.med-cross:nth-child(3) { left: 45%; top: 5%;  animation-delay: 6s;   animation-duration: 18s; font-size: 12px; }
+.med-cross:nth-child(4) { left: 20%; top: 75%; animation-delay: 9s;   animation-duration: 24s; font-size: 18px; }
+.med-cross:nth-child(5) { left: 70%; top: 85%; animation-delay: 12s;  animation-duration: 20s; font-size: 14px; }
+.med-cross:nth-child(6) { left: 92%; top: 60%; animation-delay: 4s;   animation-duration: 19s; font-size: 22px; }
+.med-cross:nth-child(7) { left: 15%; top: 45%; animation-delay: 7s;   animation-duration: 21s; font-size: 10px; }
+.med-cross:nth-child(8) { left: 60%; top: 50%; animation-delay: 15s;  animation-duration: 23s; font-size: 16px; }
+
+@keyframes floatCross {
+  0%   { opacity: 0;    transform: translateY(0px) rotate(0deg) scale(0.8); }
+  15%  { opacity: 0.5;  transform: translateY(-15px) rotate(45deg) scale(1); }
+  50%  { opacity: 0.25; transform: translateY(-30px) rotate(90deg) scale(1.1); }
+  85%  { opacity: 0.5;  transform: translateY(-15px) rotate(135deg) scale(1); }
+  100% { opacity: 0;    transform: translateY(0px) rotate(180deg) scale(0.8); }
+}
+
+/* ── Pulsing orb glow ── */
+.pulse-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  animation: orbPulse 8s ease-in-out infinite alternate;
+}
+.pulse-orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+.pulse-orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+  bottom: -80px; right: -80px;
+  animation-delay: 4s;
+}
+.pulse-orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, transparent 70%);
+  top: 40%; left: 50%;
+  animation-delay: 2s;
+}
+
+.theme-light .pulse-orb-1 {
+  background: radial-gradient(circle, rgba(14, 116, 144, 0.10) 0%, transparent 70%);
+}
+.theme-light .pulse-orb-2 {
+  background: radial-gradient(circle, rgba(5, 150, 105, 0.08) 0%, transparent 70%);
+}
+.theme-light .pulse-orb-3 {
+  background: radial-gradient(circle, rgba(8, 145, 178, 0.07) 0%, transparent 70%);
+}
+
+@keyframes orbPulse {
+  0%   { transform: scale(1) translateY(0); opacity: 0.7; }
+  50%  { transform: scale(1.15) translateY(-20px); opacity: 1; }
+  100% { transform: scale(0.9) translateY(10px); opacity: 0.6; }
+}
+
+/* ── Custom scrollbars ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0a1628; }
+::-webkit-scrollbar-thumb { background: #155e75; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #0e7490; }
+
+.theme-light ::-webkit-scrollbar-track { background: #e2e8f0; }
+.theme-light ::-webkit-scrollbar-thumb { background: #94a3b8; }
+.theme-light ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* ── Utility: hide scrollbar ── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Fade in animation ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.35s ease-out; }
+
+/* ── Medical grid dot pattern overlay ── */
+.med-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(6,182,212,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.6;
+}
+
+.theme-light .med-grid {
+  background-image:
+    radial-gradient(circle, rgba(14,116,144,0.06) 1px, transparent 1px);
+  opacity: 0.4;
+}
+
+/* ═══════════════════════════════════════════════════
+   INTERACTIVE BACKGROUND — Wave & DNA animations
+   ═══════════════════════════════════════════════════ */
+
+/* ── Animated SVG Wave paths ── */
+.wave-path-1 {
+  animation: waveShift1 8s ease-in-out infinite alternate;
+}
+.wave-path-2 {
+  animation: waveShift2 10s ease-in-out infinite alternate;
+}
+.wave-path-3 {
+  animation: waveShift3 7s ease-in-out infinite alternate;
+}
+
+@keyframes waveShift1 {
+  0%   { d: path("M0,160 C320,260 420,60 720,160 C1020,260 1120,60 1440,160"); }
+  50%  { d: path("M0,140 C280,220 520,80 720,180 C920,280 1180,80 1440,140"); }
+  100% { d: path("M0,180 C360,280 380,40 720,140 C1060,240 1100,80 1440,180"); }
+}
+
+@keyframes waveShift2 {
+  0%   { d: path("M0,200 C360,100 480,300 780,200 C1080,100 1200,300 1440,200"); }
+  50%  { d: path("M0,180 C300,120 520,280 780,180 C1040,80 1240,280 1440,220"); }
+  100% { d: path("M0,220 C400,80 440,320 780,220 C1120,120 1160,320 1440,180"); }
+}
+
+@keyframes waveShift3 {
+  0%   { d: path("M0,100 C240,170 480,30 720,100 C960,170 1200,30 1440,100"); }
+  50%  { d: path("M0,120 C280,140 520,60 720,120 C920,180 1160,50 1440,80"); }
+  100% { d: path("M0,80 C200,190 440,10 720,80 C1000,150 1240,10 1440,120"); }
+}
+
+/* ── DNA Helix floating animation ── */
+.dna-helix {
+  animation: dnaFloat 15s ease-in-out infinite alternate;
+}
+
+.dna-rung {
+  animation: dnaRungPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes dnaFloat {
+  0%   { transform: translateY(0) rotate(0deg); }
+  50%  { transform: translateY(-20px) rotate(3deg); }
+  100% { transform: translateY(10px) rotate(-2deg); }
+}
+
+@keyframes dnaRungPulse {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ── Shimmer / glow effect for interactive cards ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.card-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(6, 182, 212, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 6s linear infinite;
+  pointer-events: none;
+}
+
+.theme-light .card-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(14, 116, 144, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Hover lift effect for interactive cards ── */
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(6, 182, 212, 0.12), 0 4px 12px rgba(0,0,0,0.3);
+}
+.theme-light .hover-lift:hover {
+  box-shadow: 0 12px 40px rgba(14, 116, 144, 0.10), 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ── Theme transition for all elements ── */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* ── Brand Logo Container Custom Styles ── */
+.brand-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: all 0.35s ease;
+}
+
+body.theme-light .brand-logo-container {
+  background-color: #eef6fa;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -5px #eef6fa90, 0 10px 25px -3px #eef6fa70, 0 0 30px #eef6fa40;
+}
+
+body:not(.theme-light) .brand-logo-container {
+  background-color: #020c14;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -5px #020c1490, 0 10px 25px -3px #020c1470, 0 0 30px #020c1440;
+}
+
