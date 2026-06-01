@@ -888,7 +888,7 @@ function DashboardShell({ currentUser, onLogout, state, setState, theme, setThem
       {/* Footer Branding */}
       <footer className={`border-t py-6 text-center text-xs relative z-10 ${isLight ? 'bg-white/60 border-slate-200 text-slate-500' : 'bg-slate-950 border-slate-900/60 text-slate-500'}`}>
         <p>© 2026 Ayathana Trust | Jeevan Roshini Community Health Programme Web Portal</p>
-        <p className={`text-[10px] mt-1 ${isLight ? 'text-slate-400' : 'text-slate-600'}`}>Built with Laravel + Blade + Livewire + Tailwind CSS + ApexCharts Architecture | Powered by Infowin Digicare Pvt. Ltd. & Developed by Shanthini Hannah</p>
+        <p className={`text-[10px] mt-1 ${isLight ? 'text-slate-400' : 'text-slate-600'}`}>Built with Laravel + Blade + Livewire + Tailwind CSS + ApexCharts Architecture | Developed by Shanthini Hannah</p>
       </footer>
 
     </div>
