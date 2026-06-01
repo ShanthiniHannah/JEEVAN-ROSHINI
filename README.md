@@ -152,4 +152,4 @@ The portal is preloaded with roles for testing. If accessing via the **Quick Dem
 > **2-Factor Authentication (2FA) Bypass**: When signing in to administrative roles (Super Admin or Project Director), you can check the code displayed in the mock notification box or enter the system override code **`123456`** or **`582910`**.
 
 ---
-*Developed under the stewardship of Ayathana Trust in partnership with Infowin Digicare Pvt. Ltd.*
+*Developed under the stewardship of Ayathana Trust in partnership with Infowin Digicare Pvt. Ltd. and developed by Shanthini Hannah.*
