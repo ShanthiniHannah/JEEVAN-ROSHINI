@@ -1,121 +1,68 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\DashboardDataController;
 use App\Http\Controllers\API\MobileSyncController;
-use Illuminate\Http\Request;
-use App\Models\Village;
-use App\Models\Family;
-use App\Models\Individual;
-use App\Models\RiskAlert;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
+| Exposes the Jeevan Roshini RESTful API endpoints securely versioned 
+| under the /api/v1/ prefix.
 |
 */
 
-// Public Authentication endpoints
-Route::post('/login', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+Route::prefix('v1')->group(function () {
+    // Public Authentication
+    Route::post('/login', [AuthController::class, 'login']);
 
-    $user = \App\Models\User::where('email', $request->email)->first();
-
-    if (! $user || ! \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Invalid email or password'], 401);
-    }
-
-    $token = $user->createToken('vhw-mobile-access')->plainTextToken;
-
-    return response()->json([
-        'token' => $token,
-        'user' => [
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->getRoleNames()->first(),
-        ]
-    ]);
-});
-
-// Protected Endpoints (Token-based Laravel Sanctum)
-Route::middleware('auth:sanctum')->group(function () {
-    
-    // User profile detail
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-
-    // PWA Offline Queue Synchronization
-    Route::post('/sync', [MobileSyncController::class, 'syncOfflineQueue']);
-
-    // Attendance logging
-    Route::post('/attendance/check-in', function (Request $request) {
-        $request->validate(['gps_coords' => 'required']);
+    // Protected Route Block
+    Route::middleware(['auth:sanctum'])->group(function () {
+        // Authenticated Session info
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
         
-        $attendance = \App\Models\Attendance::create([
-            'user_id' => $request->user()->id,
-            'date' => now()->toDateString(),
-            'check_in_time' => now()->toTimeString(),
-            'gps_coords' => $request->gps_coords,
-            'status' => 'Present',
-        ]);
+        // Aggregate Dashboard & Analytics (Cached in Redis)
+        Route::get('/dashboard', [DashboardDataController::class, 'dashboard']);
 
-        return response()->json(['success' => true, 'data' => $attendance], 201);
+        // Geography Boundaries (Cached in Redis)
+        Route::get('/villages', [DashboardDataController::class, 'getVillages']);
+
+        // Family Registries
+        Route::get('/families', [DashboardDataController::class, 'getFamilies']);
+        Route::post('/families', [DashboardDataController::class, 'storeFamily']);
+
+        // Patient Demographics & PII
+        Route::get('/individuals', [DashboardDataController::class, 'getIndividuals']);
+        Route::post('/individuals', [DashboardDataController::class, 'storeIndividual']);
+        Route::post('/individuals/{id}/reveal', [DashboardDataController::class, 'revealPii']);
+
+        // VHW Daily Household Visits
+        Route::get('/visits', [DashboardDataController::class, 'getVisits']);
+        Route::post('/visits', [DashboardDataController::class, 'storeVisit']);
+
+        // VHW Shift Attendance
+        Route::get('/attendances', [DashboardDataController::class, 'getAttendances']);
+        Route::post('/attendance/check-in', [DashboardDataController::class, 'checkIn']);
+        Route::post('/attendance/check-out', [DashboardDataController::class, 'checkOut']);
+
+        // Leaves System
+        Route::get('/leaves', [DashboardDataController::class, 'getLeaves']);
+        Route::post('/leaves', [DashboardDataController::class, 'storeLeave']);
+
+        // Approvals (Project Director only)
+        Route::post('/approvals/action', [DashboardDataController::class, 'approvalAction'])->middleware('role:project-director');
+
+        // Audit Trail Logs (Super Admin only)
+        Route::get('/audits', [DashboardDataController::class, 'getAudits'])->middleware('role:super-admin');
+
+        // Database backups (Super Admin only, rate limited)
+        Route::post('/admin/backups', [DashboardDataController::class, 'runBackup'])->middleware('role:super-admin');
+
+        // Offline PWA Sync Outbox
+        Route::post('/sync', [MobileSyncController::class, 'syncOfflineQueue']);
     });
-
-    Route::post('/attendance/check-out', function (Request $request) {
-        $attendance = \App\Models\Attendance::where('user_id', $request->user()->id)
-            ->where('date', now()->toDateString())
-            ->first();
-
-        if ($attendance) {
-            $attendance->update(['check_out_time' => now()->toTimeString()]);
-            return response()->json(['success' => true, 'data' => $attendance]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'No check-in record found for today.'], 404);
-    });
-
-    // Leave request applications
-    Route::post('/leaves/apply', function (Request $request) {
-        $request->validate([
-            'start_date' => 'required|date',
-            'days_count' => 'required|integer',
-            'reason' => 'required|string',
-        ]);
-
-        $leave = \App\Models\LeaveRequest::create([
-            'user_id' => $request->user()->id,
-            'start_date' => $request->start_date,
-            'days_count' => $request->days_count,
-            'reason' => $request->reason,
-            'status' => 'Pending',
-        ]);
-
-        return response()->json(['success' => true, 'data' => $leave], 201);
-    });
-});
-
-// Admin Monitoring Analytics (Open for dashboard visualization)
-Route::get('/analytics/overview', function () {
-    return response()->json([
-        'totals' => [
-            'villages' => Village::count(),
-            'families' => Family::count(),
-            'individuals' => Individual::count(),
-            'risk_alerts' => RiskAlert::where('status', 'Active')->count(),
-        ],
-        'disease_prevalence' => [
-            'diabetes' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Diabetes')->count(),
-            'hypertension' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Hypertension')->count(),
-            'tb' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Tuberculosis')->count(),
-        ]
-    ]);
 });

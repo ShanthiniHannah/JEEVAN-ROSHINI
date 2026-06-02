@@ -74,7 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminUser = User::create([
             'name' => 'Ayathana Trust Administrator',
             'email' => 'admin@ayathanatrust.org',
-            'password' => Hash::make('AdminJeevan2026!'),
+            'password' => Hash::make('admin123'),
             'status' => 'Active'
         ]);
         $adminUser->assignRole($superAdminRole);
@@ -82,8 +82,8 @@ class RolesAndPermissionsSeeder extends Seeder
         // Project Director User
         $directorUser = User::create([
             'name' => 'Dr. Ramesh Kumar',
-            'email' => 'ramesh.director@ayathanatrust.org',
-            'password' => Hash::make('DirectorRamesh2026!'),
+            'email' => 'director@ayathanatrust.org',
+            'password' => Hash::make('director123'),
             'status' => 'Active'
         ]);
         $directorUser->assignRole($directorRole);
@@ -91,8 +91,8 @@ class RolesAndPermissionsSeeder extends Seeder
         // Village Health Worker User
         $vhwUser = User::create([
             'name' => 'Preema D\'Souza',
-            'email' => 'preema.vhw@ayathanatrust.org',
-            'password' => Hash::make('PreemaVhw2026!'),
+            'email' => 'preema@ayathanatrust.org',
+            'password' => Hash::make('vhw123'),
             'status' => 'Active'
         ]);
         $vhwUser->assignRole($vhwRole);

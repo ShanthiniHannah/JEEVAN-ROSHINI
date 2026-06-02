@@ -38,8 +38,8 @@ class DemoDataSeeder extends Seeder
         //    (RolesAndPermissionsSeeder must run first)
         // ─────────────────────────────────────────────────────────────────
         $adminUser    = User::where('email', 'admin@ayathanatrust.org')->first();
-        $directorUser = User::where('email', 'ramesh.director@ayathanatrust.org')->first();
-        $vhwUser1     = User::where('email', 'preema.vhw@ayathanatrust.org')->first();
+        $directorUser = User::where('email', 'director@ayathanatrust.org')->first();
+        $vhwUser1     = User::where('email', 'preema@ayathanatrust.org')->first();
 
         // Create a second VHW for richer attendance data
         $vhwUser2 = User::firstOrCreate(
@@ -699,7 +699,7 @@ class DemoDataSeeder extends Seeder
         // ─────────────────────────────────────────────────────────────────
         $vhwUsers = [$vhwUser1, $vhwUser2];
 
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = 6; $i >= 1; $i--) {
             $attendanceDate = Carbon::now()->subDays($i)->toDateString();
             $dayOfWeek      = Carbon::now()->subDays($i)->dayOfWeek; // 0=Sun, 6=Sat
 

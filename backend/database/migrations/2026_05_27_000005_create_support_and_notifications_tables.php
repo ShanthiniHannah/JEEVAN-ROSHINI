@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('severity')->default('Moderate'); // Mild, Moderate, Critical
             $table->text('special_notes')->nullable();
             $table->string('status')->default('Active'); // Active, Resolved, Monitoring
-            $table->foreignId('registered_by')->constrained('users');
+            $table->foreignId('registered_by')->nullable()->constrained('users')->onDelete('set null');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -37,7 +37,7 @@ return new class extends Migration
 
             // Full approval workflow
             $table->string('status')->default('Draft'); // Draft, Submitted, Approved, Rejected, Distributed, Completed
-            $table->foreignId('submitted_by')->constrained('users');
+            $table->foreignId('submitted_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('approved_at')->nullable();
             $table->text('approval_notes')->nullable();

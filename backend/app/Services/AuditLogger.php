@@ -34,15 +34,16 @@ class AuditLogger
     public static function log(Model $model, string $event, array $oldValues = [], array $newValues = []): void
     {
         AuditLog::create([
-            'user_id'    => Auth::id(),
-            'action'     => strtoupper($event) . '_' . strtoupper(class_basename($model)),
-            'event'      => $event,
-            'model_type' => get_class($model),
-            'model_id'   => (string) $model->getKey(),
-            'old_values' => $oldValues ?: null,
-            'new_values' => $newValues ?: null,
-            'ip_address' => Request::ip(),
-            'user_agent' => Request::userAgent(),
+            'user_id'     => Auth::id(),
+            'action'      => strtoupper($event) . '_' . strtoupper(class_basename($model)),
+            'description' => $event . ' ' . class_basename($model) . ' #' . $model->getKey(),
+            'event'       => $event,
+            'model_type'  => get_class($model),
+            'model_id'    => (string) $model->getKey(),
+            'old_values'  => !empty($oldValues) ? json_encode($oldValues) : null,
+            'new_values'  => !empty($newValues) ? json_encode($newValues) : null,
+            'ip_address'  => Request::ip(),
+            'user_agent'  => Request::userAgent(),
         ]);
     }
 

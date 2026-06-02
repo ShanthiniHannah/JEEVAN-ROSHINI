@@ -9,10 +9,14 @@ class LeaveRequest extends Model
     protected $fillable = [
         'user_id',
         'start_date',
+        'end_date',
         'days_count',
+        'leave_type',
         'reason',
         'status',
         'reviewed_by',
+        'reviewer_notes',
+        'reviewed_at',
     ];
 
     protected $casts = [

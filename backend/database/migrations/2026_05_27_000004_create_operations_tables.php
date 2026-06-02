@@ -45,7 +45,7 @@ return new class extends Migration
             $table->id();
             $table->string('village_id');
             $table->foreign('village_id')->references('id')->on('villages')->onDelete('cascade');
-            $table->foreignId('conducted_by')->constrained('users')->onDelete('cascade'); // VHW
+            $table->foreignId('conducted_by')->nullable()->constrained('users')->onDelete('cascade'); // VHW
             $table->string('topic'); // Menstrual Hygiene, Tobacco Prevention, Nutrition, etc.
             $table->date('program_date');
             $table->integer('participants_count')->default(0);
@@ -65,6 +65,8 @@ return new class extends Migration
             $table->string('instructor')->nullable();
             $table->date('scheduled_date');
             $table->string('venue')->nullable();
+            $table->string('video_url')->nullable();
+            $table->json('quiz_questions')->nullable();
             $table->text('description')->nullable();
             $table->string('status')->default('Scheduled'); // Scheduled, Completed, Cancelled
             $table->timestamps();
@@ -77,6 +79,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // VHW
             $table->boolean('attended')->default(false);
             $table->timestamp('completed_at')->nullable();
+            $table->integer('quiz_score')->nullable();
             $table->string('certificate_path')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

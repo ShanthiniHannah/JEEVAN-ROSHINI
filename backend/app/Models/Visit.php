@@ -33,6 +33,14 @@ class Visit extends Model
     }
 
     /**
+     * Alias relationship to satisfy getVisits eager loading.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
      * Get the family visited.
      */
     public function family()
