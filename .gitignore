@@ -34,3 +34,7 @@ lerna-debug.log*
 
 #skills
 skill.md
+
+# Test coverage
+coverage/
+frontend/coverage/
