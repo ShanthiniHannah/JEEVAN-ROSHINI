@@ -17,7 +17,11 @@ export function useTheme() {
   useEffect(() => {
     localStorage.setItem('jeevan_roshini_theme', theme);
     document.body.classList.toggle('theme-light', theme === 'light');
-    return () => document.body.classList.remove('theme-light');
+    document.documentElement.setAttribute('data-theme', theme);
+    return () => {
+      document.body.classList.remove('theme-light');
+      document.documentElement.removeAttribute('data-theme');
+    };
   }, [theme]);
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');

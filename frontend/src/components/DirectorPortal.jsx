@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/apiClient.js';
+import { useTheme } from '../hooks/useTheme';
+import { motion } from 'framer-motion';
 import {
   Users, Clock, Heart, Award, CheckCircle2,
   MapPin, ClipboardList, CheckSquare, BarChart2, BookOpen, Globe
@@ -31,6 +33,7 @@ export default function DirectorPortal({ state, setState }) {
   const { subTab } = useParams();
   const navigate = useNavigate();
   const activeTab = subTab || 'approvals';
+  const { isLight } = useTheme();
   const setActiveTab = (newTab) => {
     navigate(`/director/${newTab}`);
   };
@@ -286,66 +289,73 @@ export default function DirectorPortal({ state, setState }) {
     <div className="space-y-6">
       {/* Success Banner */}
       {successBanner && (
-        <div className="fixed top-20 right-4 z-50 bg-emerald-600 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-emerald-500 animate-bounce">
-          <CheckCircle2 className="w-4 h-4" /> {successBanner}
+        <div className="fixed top-20 right-4 z-50 bg-emerald-600/95 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-emerald-500 animate-bounce">
+          <CheckCircle2 className="w-4 h-4 text-emerald-200" /> {successBanner}
         </div>
       )}
 
-      {/* Header */}
+      {/* Header operations banner */}
       <div 
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-slate-800 p-6 rounded-2xl relative overflow-hidden"
-        style={{
-          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.93) 30%, rgba(15, 23, 42, 0.4)), url(/other-portal-bg.png)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        className={`flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border border-[var(--border-color)] p-6 rounded-2xl relative overflow-hidden text-white bg-gradient-to-r ${
+          isLight ? 'from-brand-600 to-brand-700' : 'from-slate-900 to-slate-800'
+        }`}
       >
-        <div className="relative z-10">
-          <span className="text-[10px] uppercase font-extrabold tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20 backdrop-blur-sm">
+        <div className="relative z-10 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded border border-teal-500/20 backdrop-blur-md">
             Project Director — {assignedBlock}
           </span>
-          <h2 className="text-2xl font-black text-white mt-2 drop-shadow-md">Dr. Ramesh Kumar — Operations Control</h2>
-          <p className="text-xs text-slate-300 mt-1 drop-shadow">Supervise rural VHW logs · Enforce approval workflows · Analyze block indices</p>
+          <h2 className="text-2xl font-black mt-1 drop-shadow-md text-white">Dr. Ramesh Kumar — Operations Control</h2>
+          <p className="text-xs leading-relaxed font-semibold text-slate-100 opacity-90">Supervise rural VHW logs · Enforce operational approvals · Analyze block indices</p>
         </div>
-        <div className="grid grid-cols-3 gap-3 text-center relative z-10">
-          <div className="bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-sm">
-            <p className="text-xl font-extrabold text-blue-400">{state.visits.length}</p>
-            <p className="text-[9px] text-slate-500 uppercase font-bold mt-0.5">Total Visits</p>
-          </div>
-          <div className="bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-sm">
-            <p className="text-xl font-extrabold text-amber-400">
-              {state.leaveRequests.filter(l => l.status === 'Submitted').length +
-               state.attendance.filter(a => a.approvalStatus === 'Submitted').length +
-               (state.villageReports?.filter(r => r.status === 'Submitted').length || 0) +
-               state.referrals.filter(ref => ref.status === 'Submitted').length}
-            </p>
-            <p className="text-[9px] text-slate-500 uppercase font-bold mt-0.5">Pending Approvals</p>
-          </div>
-          <div className="bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-sm">
-            <p className="text-xl font-extrabold text-emerald-400">{state.attendance.length}</p>
-            <p className="text-[9px] text-slate-500 uppercase font-bold mt-0.5">Attendance Logs</p>
-          </div>
+        
+        <div className="grid grid-cols-3 gap-3 text-center relative z-10 w-full lg:w-auto">
+          {[
+            { value: state.visits.length, label: 'Total Visits', color: 'text-brand-500' },
+            { value: state.leaveRequests.filter(l => l.status === 'Submitted').length +
+                     state.attendance.filter(a => a.approvalStatus === 'Submitted').length +
+                     (state.villageReports?.filter(r => r.status === 'Submitted').length || 0) +
+                     state.referrals.filter(ref => ref.status === 'Submitted').length, label: 'Pending', color: 'text-rose-450' },
+            { value: state.attendance.length, label: 'Shift Logs', color: 'text-teal-400' }
+          ].map(({ value, label, color }) => (
+            <div key={label} className="bg-white/10 dark:bg-slate-950/60 border border-white/10 dark:border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md min-w-[90px] flex-1">
+              <p className={`text-xl font-black ${color}`}>{value}</p>
+              <p className="text-xs font-extrabold uppercase mt-0.5 tracking-wider text-slate-200">{label}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Tab Bar */}
-      <div className="flex overflow-x-auto border-b border-slate-800 gap-1">
+      {/* Navigation Tab Bar */}
+      <div className="flex overflow-x-auto border-b border-[var(--border-color)] bg-[var(--bg-card)] gap-1 scrollbar-hide py-1">
         {TABS.map(tab => {
           const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
           return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-3 font-bold text-xs uppercase tracking-wider border-b-2 whitespace-nowrap transition-all duration-200 ${
-                activeTab === tab.id ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300'
-              }`}>
-              <Icon className="w-3.5 h-3.5" /> {tab.label}
+            <button 
+              key={tab.id} 
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-150 cursor-pointer relative ${
+                isActive 
+                  ? 'text-brand-500 border-b-2 border-brand-500 font-semibold' 
+                  : 'text-[var(--text-secondary)] border-b-2 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--border-color)]'
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span>{tab.label}</span>
+              {isActive && (
+                <motion.div 
+                  layoutId="activeTabIndicator"
+                  className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-brand-500 z-20"
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                />
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* Modular Tab Content */}
-      <div className="relative z-10 mt-4">
+      {/* Tab content view */}
+      <div className="relative z-10">
         {activeTab === 'approvals' && (
           <ApprovalWorkflows 
             state={state}

@@ -21,20 +21,20 @@ export default function InteractiveBackground({ theme = 'dark' }) {
 
   // Community health node types with colors
   const nodeTypes = [
-    { icon: '🏘️', label: 'Village',      color: isLight ? [14,116,144] : [34,211,238] },
-    { icon: '👨‍👩‍👧‍👦', label: 'Family',       color: isLight ? [5,150,105]  : [52,211,153] },
-    { icon: '🤰', label: 'Maternal',     color: isLight ? [124,58,237] : [167,139,250] },
-    { icon: '💉', label: 'Vaccination',  color: isLight ? [14,116,144] : [34,211,238] },
-    { icon: '🍎', label: 'Nutrition',    color: isLight ? [217,119,6]  : [251,191,36] },
-    { icon: '🧠', label: 'Wellness',     color: isLight ? [124,58,237] : [167,139,250] },
-    { icon: '👴', label: 'Elderly',      color: isLight ? [5,150,105]  : [52,211,153] },
-    { icon: '📋', label: 'Training',     color: isLight ? [14,116,144] : [34,211,238] },
-    { icon: '❤️', label: 'Care',         color: isLight ? [225,29,72]  : [251,113,133] },
-    { icon: '🏥', label: 'PHC',          color: isLight ? [5,150,105]  : [52,211,153] },
-    { icon: '🌿', label: 'Wellbeing',    color: isLight ? [13,148,136] : [45,212,191] },
-    { icon: '👶', label: 'Child',        color: isLight ? [217,119,6]  : [251,191,36] },
-    { icon: '💧', label: 'Water',        color: isLight ? [14,116,144] : [103,232,249] },
-    { icon: '🩺', label: 'Screening',    color: isLight ? [14,116,144] : [34,211,238] },
+    { label: 'Village',      color: isLight ? [14,116,144] : [34,211,238] },
+    { label: 'Family',       color: isLight ? [5,150,105]  : [52,211,153] },
+    { label: 'Maternal',     color: isLight ? [124,58,237] : [167,139,250] },
+    { label: 'Vaccination',  color: isLight ? [14,116,144] : [34,211,238] },
+    { label: 'Nutrition',    color: isLight ? [217,119,6]  : [251,191,36] },
+    { label: 'Wellness',     color: isLight ? [124,58,237] : [167,139,250] },
+    { label: 'Elderly',      color: isLight ? [5,150,105]  : [52,211,153] },
+    { label: 'Training',     color: isLight ? [14,116,144] : [34,211,238] },
+    { label: 'Care',         color: isLight ? [225,29,72]  : [251,113,133] },
+    { label: 'PHC',          color: isLight ? [5,150,105]  : [52,211,153] },
+    { label: 'Wellbeing',    color: isLight ? [13,148,136] : [45,212,191] },
+    { label: 'Child',        color: isLight ? [217,119,6]  : [251,191,36] },
+    { label: 'Water',        color: isLight ? [14,116,144] : [103,232,249] },
+    { label: 'Screening',    color: isLight ? [14,116,144] : [34,211,238] },
   ];
 
   const initParticles = useCallback((width, height) => {

@@ -11,7 +11,7 @@ import AdminPortal from '../components/AdminPortal';
  * AdminPage — Super Admin (Ayathana Trust) portal page.
  * Mounts AdminPortal inside AppShell with live data from AppDataContext.
  */
-export default function AdminPage() {
+export function AdminPage() {
   const { currentUser, logout } = useAuth();
   const { state, setState } = useAppDataContext();
   const { theme, setTheme } = useTheme();
@@ -25,10 +25,6 @@ export default function AdminPage() {
     await logout();
     navigate('/login');
   };
-
-  const portalBg = theme === 'dark'
-    ? 'linear-gradient(rgba(7, 11, 21, 0.91), rgba(7, 11, 21, 0.91)), url(/admin-portal-bg.png)'
-    : 'linear-gradient(rgba(238, 246, 250, 0.55), rgba(238, 246, 250, 0.55)), url(/admin-portal-bg.png)';
 
   return (
     <AppShell
@@ -45,9 +41,10 @@ export default function AdminPage() {
       onOpenShowcase={() => setIsShowcaseOpen(true)}
       isShowcaseOpen={isShowcaseOpen}
       onCloseShowcase={() => setIsShowcaseOpen(false)}
-      portalBg={portalBg}
     >
       <AdminPortal state={state} setState={setState} env={env} setEnv={setEnv} />
     </AppShell>
   );
 }
+
+export default AdminPage;

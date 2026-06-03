@@ -11,7 +11,7 @@ import DirectorPortal from '../components/DirectorPortal';
  * DirectorPage — Project Director portal page.
  * Mounts DirectorPortal inside AppShell with live data from AppDataContext.
  */
-export default function DirectorPage() {
+export function DirectorPage() {
   const { currentUser, logout } = useAuth();
   const { state, setState } = useAppDataContext();
   const { theme, setTheme } = useTheme();
@@ -25,10 +25,6 @@ export default function DirectorPage() {
     await logout();
     navigate('/login');
   };
-
-  const portalBg = theme === 'dark'
-    ? 'linear-gradient(rgba(7, 11, 21, 0.91), rgba(7, 11, 21, 0.91)), url(/other-portal-bg.png)'
-    : 'linear-gradient(rgba(238, 246, 250, 0.55), rgba(238, 246, 250, 0.55)), url(/other-portal-bg.png)';
 
   return (
     <AppShell
@@ -44,9 +40,10 @@ export default function DirectorPage() {
       onOpenShowcase={() => setIsShowcaseOpen(true)}
       isShowcaseOpen={isShowcaseOpen}
       onCloseShowcase={() => setIsShowcaseOpen(false)}
-      portalBg={portalBg}
     >
       <DirectorPortal state={state} setState={setState} env={env} />
     </AppShell>
   );
 }
+
+export default DirectorPage;

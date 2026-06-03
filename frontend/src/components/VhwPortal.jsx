@@ -206,7 +206,7 @@ export default function VhwPortal({
                         offlineQueue.some(q => q.type === 'family' && (q.data.villageId || q.data.village_id) === familyForm.villageId && q.data.houseNo === familyForm.houseNo);
     
     if (isDuplicate) {
-      notifyError("❌ Error: A family with this House No. is already registered in this village!");
+      notifyError("Error: A family with this House No. is already registered in this village!");
       return;
     }
 
@@ -254,25 +254,25 @@ export default function VhwPortal({
 
     // ── DATA VALIDATION RULES ──
     if (individualForm.gender === 'Male' && individualForm.pregnancyStatus === 'Yes') {
-      notifyError("❌ Validation Failure: Pregnant status cannot be active for a male patient!");
+      notifyError("Validation Failure: Pregnant status cannot be active for a male patient!");
       return;
     }
 
     const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
     if (!validBloodGroups.includes(individualForm.bloodGroup)) {
-      notifyError("❌ Validation Failure: Invalid blood group format!");
+      notifyError("Validation Failure: Invalid blood group format!");
       return;
     }
 
     const isDuplicate = state.individuals.some(i => i.name.toLowerCase() === individualForm.name.toLowerCase() && i.age === individualForm.age) ||
                         offlineQueue.some(q => q.type === 'individual' && q.data.name.toLowerCase() === individualForm.name.toLowerCase() && q.data.age === individualForm.age);
     if (isDuplicate) {
-      notifyError("❌ Error: An individual with this Name & Age is already registered!");
+      notifyError("Error: An individual with this Name & Age is already registered!");
       return;
     }
 
     if (individualForm.chronicDiseases.includes('Diabetes') && parseInt(individualForm.age) < 5) {
-      alert("⚠️ Clinical Alert: Juvenile diabetes flagged. Double check clinical screening entry!");
+      alert("Clinical Alert: Juvenile diabetes flagged. Double check clinical screening entry!");
     }
 
     const newInd = {
@@ -512,7 +512,7 @@ export default function VhwPortal({
     try {
       const response = await api.post('/sync', { queue: offlineQueue });
       if (response.data.success) {
-        setSyncLogs(prev => [...prev, "Uploading cached sync queue...", "✅ Cloud DB transaction finalized."]);
+        setSyncLogs(prev => [...prev, "Uploading cached sync queue...", "[Success] Cloud DB transaction finalized."]);
         await delay(500);
         
         // Refresh local data
@@ -531,11 +531,11 @@ export default function VhwPortal({
           visits: visitsRes.data.data || visitsRes.data
         }));
 
-        setSyncLogs(prev => [...prev, "🎉 Local storage database synchronized with central server!"]);
+        setSyncLogs(prev => [...prev, "[Completed] Local storage database synchronized with central server!"]);
         setOfflineQueue([]);
       }
     } catch (err) {
-      setSyncLogs(prev => [...prev, "❌ Sync transaction aborted: " + (err.response?.data?.message || "Internal network error")]);
+      setSyncLogs(prev => [...prev, "[Error] Sync transaction aborted: " + (err.response?.data?.message || "Internal network error")]);
     } finally {
       setIsSimulatingSync(false);
     }
@@ -544,106 +544,105 @@ export default function VhwPortal({
   const liveRiskAlerts = evaluateRiskAlerts(individualForm);
 
   return (
-    <div className="flex flex-col border border-slate-800 rounded-3xl overflow-hidden shadow-2xl w-full max-w-[420px] mx-auto min-h-[750px] relative text-slate-200 bg-slate-950">
+    <div className="flex flex-col border border-[var(--border-color)] rounded-[30px] overflow-x-hidden shadow-2xl w-full max-w-[390px] mx-auto min-h-[720px] relative text-[var(--text-primary)] bg-[var(--bg-card)] select-none z-10">
       
       {/* Subtle Heart Watermark Background */}
-      <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-indigo-950/20" />
-        <div className="absolute w-[240px] h-[240px] rounded-full bg-rose-500/5 blur-[80px]" />
-        <Heart className="w-56 h-56 text-rose-500/5 fill-rose-500/[0.02] transform -rotate-12 animate-pulse" />
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-[var(--bg-page)] opacity-95" />
+        <div className="absolute w-[200px] h-[200px] rounded-full bg-rose-500/5 blur-[70px]" />
+        <Heart className="w-48 h-48 text-rose-500/5 fill-rose-500/[0.01] transform -rotate-12 animate-pulse" />
       </div>
       
       {/* Mobile Top Status Bar */}
-      <div className="bg-slate-950 px-3 py-2 flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-900 relative z-20">
-        <span className="font-semibold text-slate-300">11:30 AM</span>
+      <div className="bg-[var(--bg-inner)] px-4 py-2 flex justify-between items-center text-xs text-[var(--text-secondary)] border-b border-[var(--border-color)] relative z-25">
+        <span className="font-bold tracking-tight">11:30 AM</span>
         
         {/* Network & Debugger Buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button 
             onClick={() => setIsOnline(!isOnline)} 
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full transition-all duration-300 font-bold ${
-              isOnline ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-all duration-300 font-extrabold text-xs cursor-pointer border ${
+              isOnline ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-450 border-rose-500/20'
             }`}
           >
             {isOnline ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
-            {isOnline ? t('online') : t('offline')}
+            {isOnline ? 'ONLINE' : 'OFFLINE'}
           </button>
           
           <button 
             onClick={() => setActiveSubTab('sync_sandbox')}
-            className={`px-1.5 py-0.5 rounded-full border text-[8px] font-extrabold uppercase transition-all tracking-wider ${activeSubTab === 'sync_sandbox' ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' : 'bg-slate-900 border-slate-800 text-indigo-400 hover:bg-slate-800'}`}
+            className={`px-2 py-0.5 rounded-full border text-xs font-black uppercase transition-all tracking-wider cursor-pointer ${
+              activeSubTab === 'sync_sandbox' 
+                ? 'bg-brand-600 border-brand-500 text-white shadow' 
+                : 'bg-[var(--bg-card)] border-[var(--border-color)] text-brand-600 dark:text-brand-400 hover:bg-[var(--bg-inner)]'
+            }`}
           >
-            🔄 Sync Sandbox
+            Sandbox
           </button>
         </div>
       </div>
 
       {/* Main App Bar */}
       <div 
-        className="p-4 shadow-lg flex justify-between items-center relative overflow-hidden border-b border-indigo-900/50 z-10"
-        style={{
-          backgroundImage: 'linear-gradient(to right, rgba(29, 78, 216, 0.93) 10%, rgba(15, 23, 42, 0.65)), url(/vhw-banner.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        className="p-4 shadow-md flex justify-between items-center relative overflow-hidden border-b border-[var(--border-color)] z-10 bg-gradient-to-r from-brand-600 to-brand-700"
       >
         <div className="relative z-10">
-          <h2 className="text-base font-black text-white leading-tight flex items-center gap-1.5 drop-shadow-md">
-            <Heart className="w-4 h-4 text-rose-400 animate-pulse fill-rose-400" />
+          <h2 className="text-sm font-black text-white leading-tight flex items-center gap-1.5 drop-shadow-sm">
+            <Heart className="w-3.5 h-3.5 text-rose-400 animate-pulse fill-rose-400" />
             Jeevan Roshini Mobile
           </h2>
-          <p className="text-[9px] text-blue-200 font-semibold uppercase tracking-wider drop-shadow mt-0.5">District Field PWA Client</p>
+          <p className="text-xs text-sky-100 font-bold uppercase tracking-wider drop-shadow-sm mt-0.5">District Field Client</p>
         </div>
         <div className="text-right relative z-10">
           <p className="text-xs text-white font-extrabold drop-shadow">{currentVhwName}</p>
-          <span className="text-[8px] font-black bg-indigo-950/75 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20 shadow">ID: {currentVhwId}</span>
+          <span className="text-xs font-black bg-indigo-950/70 text-indigo-300 px-1.5 py-0.2 rounded border border-indigo-500/10">ID: {currentVhwId}</span>
         </div>
       </div>
 
-      {/* Active Visibility Scope Banner */}
-      <div className="bg-slate-900 border-b border-slate-800 px-3 py-1 flex items-center justify-between text-[8.5px] text-indigo-300 font-bold uppercase tracking-wider relative z-10">
-        <span>📍 SCOPE: {currentUser?.name?.includes('Shobha') ? 'Belur Sector' : 'Gundya & Mudigere Sectors'}</span>
-        <span className="bg-indigo-500/10 text-[7.5px] px-1 py-0.2 rounded border border-indigo-500/20">Assigned Villages Only</span>
+      {/* Scope Banner */}
+      <div className="bg-[var(--bg-inner)] border-b border-[var(--border-color)] px-4 py-1.5 flex items-center justify-between text-xs text-[var(--text-secondary)] font-extrabold uppercase tracking-wider relative z-10">
+        <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-brand-500" /> SCOPE: {currentUser?.name?.includes('Shobha') ? 'Belur' : 'Gundya'}</span>
+        <span className="text-xs text-brand-600 dark:text-brand-400 bg-brand-500/5 px-1.5 py-0.2 border border-brand-500/10 rounded">Scope</span>
       </div>
 
       {/* Success Notification Alert */}
       {successMsg && (
-        <div className="absolute top-20 left-4 right-4 z-50 bg-emerald-600/95 text-white text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-emerald-500 flex items-center gap-2 animate-bounce">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-200" />
-          <span className="font-semibold">{successMsg}</span>
+        <div className="absolute top-20 left-4 right-4 z-50 bg-emerald-650 text-white text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-emerald-500 flex items-center gap-2 animate-bounce">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-250" />
+          <span className="font-bold">{successMsg}</span>
         </div>
       )}
 
       {/* Error Validation Alert */}
       {errorMsg && (
-        <div className="absolute top-20 left-4 right-4 z-50 bg-rose-600/95 text-white text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-rose-500 flex items-center gap-2 animate-bounce">
-          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-200" />
-          <span className="font-semibold">{errorMsg}</span>
+        <div className="absolute top-20 left-4 right-4 z-50 bg-rose-650 text-white text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-rose-500 flex items-center gap-2 animate-bounce">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-250" />
+          <span className="font-bold">{errorMsg}</span>
         </div>
       )}
 
       {/* Offline Queue Sync Indicator */}
       {offlineQueue.length > 0 && activeSubTab !== 'sync_sandbox' && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 px-3 py-2 flex justify-between items-center text-xs text-amber-300 relative z-10">
-          <span className="flex items-center gap-1.5 text-[10px] font-bold">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-            {offlineQueue.length} {t('syncPending') || 'Offline Records Pending'}
+        <div className="bg-amber-500/10 border-b border-amber-550/25 px-4 py-2 flex justify-between items-center text-xs text-amber-600 dark:text-amber-400 relative z-10">
+          <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+            {offlineQueue.length} records local
           </span>
           <button 
             onClick={runOfflineSyncSimulation}
             disabled={!isOnline}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold transition-all text-[10px] ${
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded bg-brand-500 hover:bg-brand-600 text-white font-black transition-all text-xs cursor-pointer ${
               !isOnline ? 'opacity-40 cursor-not-allowed' : 'active:scale-95'
             }`}
           >
-            <RefreshCw className="w-2.5 h-2.5 text-slate-950 animate-spin" />
+            <RefreshCw className="w-2.5 h-2.5 animate-spin" />
             Sync Now
           </button>
         </div>
       )}
 
       {/* Main Content Area (Scrollable) */}
-      <div className="flex-1 overflow-y-auto px-3.5 py-3 pb-24 relative z-10">
+      <div className="flex-1 overflow-y-auto px-4 py-3.5 pb-24 relative z-10 bg-[var(--bg-card)]">
         
         {activeSubTab === 'home' && (
           <VhwDashboard 
@@ -704,6 +703,7 @@ export default function VhwPortal({
             revealedPii={revealedPii}
             toggleRevealPii={toggleRevealPii}
             families={state.families}
+            visits={state.visits}
           />
         )}
 
@@ -754,45 +754,45 @@ export default function VhwPortal({
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur border-t border-slate-800/80 py-2.5 px-3 flex justify-between items-center z-40">
+      <div className="absolute bottom-0 left-0 right-0 bg-[var(--bg-card)] border-t border-[var(--border-color)] py-3 px-4 flex justify-between items-center z-40">
         <button 
           onClick={() => setActiveSubTab('home')}
-          className={`flex flex-col items-center gap-1 transition ${activeSubTab === 'home' ? 'text-blue-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'home' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
-          <ClipboardList className="w-4 h-4" />
-          <span className="text-[9px]">Home</span>
+          <ClipboardList className="w-4.5 h-4.5" />
+          <span className="text-xs">Home</span>
         </button>
 
         <button 
           onClick={() => setActiveSubTab('echr')}
-          className={`flex flex-col items-center gap-1 transition ${activeSubTab === 'echr' ? 'text-blue-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'echr' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
-          <Users className="w-4 h-4" />
-          <span className="text-[9px]">Patients</span>
+          <Users className="w-4.5 h-4.5" />
+          <span className="text-xs">Patients</span>
         </button>
 
         <button 
           onClick={() => setActiveSubTab('programs')}
-          className={`flex flex-col items-center gap-1 transition ${activeSubTab === 'programs' ? 'text-blue-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'programs' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
-          <Heart className="w-4 h-4" />
-          <span className="text-[9px]">Programs</span>
+          <Heart className="w-4.5 h-4.5" />
+          <span className="text-xs">Programs</span>
         </button>
 
         <button 
           onClick={() => setActiveSubTab('attendance')}
-          className={`flex flex-col items-center gap-1 transition ${activeSubTab === 'attendance' ? 'text-blue-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'attendance' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
-          <Clock className="w-4 h-4" />
-          <span className="text-[9px]">HR/GPS</span>
+          <Clock className="w-4.5 h-4.5" />
+          <span className="text-xs">HR/GPS</span>
         </button>
 
         <button 
           onClick={() => setActiveSubTab('training')}
-          className={`flex flex-col items-center gap-1 transition ${activeSubTab === 'training' ? 'text-blue-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+          className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'training' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
-          <BookOpen className="w-4 h-4" />
-          <span className="text-[9px]">Training</span>
+          <BookOpen className="w-4.5 h-4.5" />
+          <span className="text-xs">Training</span>
         </button>
       </div>
 

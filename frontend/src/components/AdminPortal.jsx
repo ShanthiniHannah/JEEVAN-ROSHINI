@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/apiClient.js';
+import { useTheme } from '../hooks/useTheme';
 import {
   MapPin, ClipboardList, CheckSquare, AlertTriangle, Heart, Bell, FileText, Activity, Database, BarChart2, Shield
 } from 'lucide-react';
@@ -32,6 +33,7 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
   const { subTab } = useParams();
   const navigate = useNavigate();
   const activeTab = subTab || 'dashboard';
+  const { isLight } = useTheme();
   const setActiveTab = (newTab) => {
     navigate(`/admin/${newTab}`);
   };
@@ -104,50 +106,50 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
   }, [state.visits.length]);
 
   const chartBase = useMemo(() => ({ toolbar: { show: false }, background: 'transparent', fontFamily: 'Inter, sans-serif' }), []);
-  const axisStyle = useMemo(() => ({ colors: '#64748b', fontSize: '11px' }), []);
+  const axisStyle = useMemo(() => ({ colors: isLight ? '#475569' : '#94a3b8', fontSize: '12px' }), [isLight]);
 
   const diseaseOpts = useMemo(() => ({
     chart: { ...chartBase, type: 'bar' },
     plotOptions: { bar: { borderRadius: 5, distributed: true, columnWidth: '50%' } },
-    colors: ['#3b82f6', '#f43f5e', '#f59e0b', '#a855f7', '#06b6d4'],
-    dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '10px', fontWeight: 700 } },
+    colors: ['#0ea5e9', '#14b8a6', '#22c55e', '#a855f7', '#06b6d4'],
+    dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '12px', fontWeight: 700 } },
     xaxis: { categories: ['Diabetes', 'Hypertension', 'TB', 'Cancer', 'Asthma'], labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: '#1e293b' }, theme: { mode: 'dark' }, legend: { show: false },
-    tooltip: { theme: 'dark' }
-  }), [chartBase, axisStyle]);
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, theme: { mode: isLight ? 'light' : 'dark' }, legend: { show: false },
+    tooltip: { theme: isLight ? 'light' : 'dark' }
+  }), [chartBase, axisStyle, isLight]);
 
   const maternalOpts = useMemo(() => ({
     chart: { ...chartBase, type: 'donut' },
     labels: ['Normal Pregnancy', 'High-Risk Pregnancy'],
-    colors: ['#10b981', '#ef4444'],
-    plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Pregnant', color: '#94a3b8', fontSize: '11px' } } } } },
+    colors: ['#22c55e', '#ef4444'],
+    plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Pregnant', color: isLight ? '#475569' : '#94a3b8', fontSize: '12px' } } } } },
     dataLabels: { enabled: false },
-    legend: { position: 'bottom', labels: { colors: '#94a3b8' } },
-    theme: { mode: 'dark' }, tooltip: { theme: 'dark' }
-  }), [chartBase]);
+    legend: { position: 'bottom', labels: { colors: isLight ? '#475569' : '#94a3b8' } },
+    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+  }), [chartBase, isLight]);
 
   const villageOpts = useMemo(() => ({
     chart: { ...chartBase, type: 'bar' },
-    colors: ['#6366f1', '#10b981'],
+    colors: ['#0ea5e9', '#14b8a6'],
     plotOptions: { bar: { columnWidth: '60%', borderRadius: 4, grouped: true } },
     dataLabels: { enabled: false },
     xaxis: { categories: vs.cats.length ? vs.cats : ['V1', 'V2', 'V3'], labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: '#1e293b' }, legend: { labels: { colors: '#94a3b8' } },
-    theme: { mode: 'dark' }, tooltip: { theme: 'dark' }
-  }), [chartBase, axisStyle, vs.cats]);
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, legend: { labels: { colors: isLight ? '#475569' : '#94a3b8' } },
+    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+  }), [chartBase, axisStyle, vs.cats, isLight]);
 
   const visitTrendOpts = useMemo(() => ({
     chart: { ...chartBase, type: 'area' },
-    colors: ['#6366f1'],
+    colors: ['#0ea5e9'],
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
     stroke: { curve: 'smooth', width: 2 },
     dataLabels: { enabled: false },
     xaxis: { categories: mv.months, labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: '#1e293b' }, theme: { mode: 'dark' }, tooltip: { theme: 'dark' }
-  }), [chartBase, axisStyle, mv.months]);
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+  }), [chartBase, axisStyle, mv.months, isLight]);
 
   // ── HANDLERS ──
   const handleCreateVillage = (e) => {
@@ -250,10 +252,10 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
 
     const failType = Math.floor(Math.random() * 4);
     if (failType === 0) {
-      setUploadErrors(["❌ Scan compliance error: Consent document signature not matched (biometric exception JR-VLG-0192).", "❌ Decryption error: GPG packet corrupt (packet 82)."]);
-      setUploadLogs(prev => [...prev, "❌ Scan stream completed with compliance violations!"]);
+      setUploadErrors(["[Error] Scan compliance error: Consent document signature not matched (biometric exception JR-VLG-0192).", "[Error] Decryption error: GPG packet corrupt (packet 82)."]);
+      setUploadLogs(prev => [...prev, "[Error] Scan stream completed with compliance violations!"]);
     } else {
-      setUploadLogs(prev => [...prev, "✅ OCR signatures verified.", "🎉 Document verified and archived securely in AES vault!"]);
+      setUploadLogs(prev => [...prev, "[Success] OCR signatures verified.", "[Completed] Document verified and archived securely in AES vault!"]);
     }
     setIsUploading(false);
   };
@@ -268,7 +270,7 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
     setDrLogs(prev => [...prev, "Archiving SQL schemas...", "Compressing GZip blocks..."]);
     await delay(500);
 
-    setDrLogs(prev => [...prev, "✅ Snapshot successfully compiled.", "🎉 Snapshot backup uploaded securely to central AWS S3 vault!"]);
+    setDrLogs(prev => [...prev, "[Success] Snapshot successfully compiled.", "[Completed] Snapshot backup uploaded securely to central AWS S3 vault!"]);
     setIsBackingUp(false);
   };
 
@@ -291,51 +293,55 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
       
       {/* Central Admin Control Header */}
       <div 
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-slate-800 p-6 rounded-2xl relative overflow-hidden"
-        style={{
-          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.93) 30%, rgba(15, 23, 42, 0.4)), url(/other-portal-bg.png)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        className={`flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border border-[var(--border-color)] p-6 rounded-2xl relative overflow-hidden text-white bg-gradient-to-r ${
+          isLight ? 'from-brand-600 to-brand-700' : 'from-slate-900 to-slate-800'
+        }`}
       >
-        <div className="relative z-10">
-          <span className="text-[10px] uppercase font-extrabold tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 backdrop-blur-sm">
+        <div className="relative z-10 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded border border-teal-500/20 backdrop-blur-md">
             Central System Auditor
           </span>
-          <h2 className="text-2xl font-black text-white mt-2 drop-shadow-md">Central Admin Control Panel</h2>
-          <p className="text-xs text-slate-300 mt-1 drop-shadow">Manage rural scopes · Deploy authorization credentials · Enforce compliance metrics</p>
+          <h2 className="text-2xl font-black mt-1 drop-shadow-md text-white">Central Admin Control Panel</h2>
+          <p className="text-xs leading-relaxed font-semibold text-slate-100 opacity-90">Manage rural sectors · Deploy authorization credentials · Enforce compliance metrics</p>
         </div>
         
-        <div className="flex gap-2 text-xs relative z-10">
+        <div className="flex gap-2 text-xs relative z-10 w-full lg:w-auto justify-end">
           <button 
             onClick={() => setEnv(env === 'Production' ? 'Staging' : 'Production')}
-            className={`px-3 py-1.5 rounded-lg border font-bold transition ${
-              env === 'Production' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'
+            className={`px-4 py-2 rounded-xl border font-black transition cursor-pointer text-xs uppercase tracking-wider ${
+              env === 'Production' 
+                ? 'bg-brand-650 border-brand-500 text-white shadow' 
+                : 'bg-white/10 dark:bg-slate-950/60 border-white/15 dark:border-slate-800 text-slate-200'
             }`}
           >
-            ENV: {env.toUpperCase()}
+            ENV: {env}
           </button>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex overflow-x-auto border-b border-slate-800 gap-1">
+      {/* Navigation Tab Bar */}
+      <div className="flex overflow-x-auto border-b border-[var(--border-color)] bg-[var(--bg-card)] gap-1 scrollbar-hide py-1">
         {TABS.map(tab => {
           const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
           return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-3 font-bold text-xs uppercase tracking-wider border-b-2 whitespace-nowrap transition-all duration-200 ${
-                activeTab === tab.id ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300'
-              }`}>
-              <Icon className="w-3.5 h-3.5" /> {tab.label}
+            <button 
+              key={tab.id} 
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 font-black text-xs uppercase tracking-wider border-b-2 whitespace-nowrap transition-all duration-250 cursor-pointer ${
+                isActive 
+                  ? 'border-brand-500 text-brand-500 font-semibold dark:border-brand-400 dark:text-brand-400' 
+                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-color)]'
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" /> {tab.label}
             </button>
           );
         })}
       </div>
 
       {/* Modular Tab Content */}
-      <div className="relative z-10 mt-4">
+      <div className="relative z-10">
         {activeTab === 'dashboard' && (
           <AnalyticsDashboard 
             stats={stats}
