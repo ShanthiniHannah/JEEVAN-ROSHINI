@@ -24,7 +24,7 @@ class Followup extends Model
 
     protected $casts = [
         'followup_date' => 'date',
-        'completed_on'  => 'date',
+        'completed_on' => 'date',
     ];
 
     /**
@@ -73,7 +73,7 @@ class Followup extends Model
     public function scopeOverdue($query)
     {
         return $query->where('status', 'Pending')
-                     ->where('followup_date', '<', now()->toDateString());
+            ->where('followup_date', '<', now()->toDateString());
     }
 
     /**
@@ -82,6 +82,6 @@ class Followup extends Model
     public function scopeUpcoming($query, int $days = 7)
     {
         return $query->where('status', 'Pending')
-                     ->whereBetween('followup_date', [now()->toDateString(), now()->addDays($days)->toDateString()]);
+            ->whereBetween('followup_date', [now()->toDateString(), now()->addDays($days)->toDateString()]);
     }
 }

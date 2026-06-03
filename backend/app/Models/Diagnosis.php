@@ -24,7 +24,7 @@ class Diagnosis extends Model
 
     protected $casts = [
         'diagnosed_on' => 'date',
-        'resolved_on'  => 'date',
+        'resolved_on' => 'date',
     ];
 
     /**

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\CommunityProgram;
+use App\Models\Family;
+use App\Models\HealthRecord;
+use App\Models\Individual;
+use App\Models\RiskAlert;
+use App\Models\Village;
+use App\Models\Visit;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Village;
-use App\Models\Family;
-use App\Models\Individual;
-use App\Models\HealthRecord;
-use App\Models\RiskAlert;
-use App\Models\Visit;
-use App\Models\CommunityProgram;
-use Exception;
 
 class MobileSyncController extends Controller
 {
@@ -36,7 +36,9 @@ class MobileSyncController extends Controller
                 $type = $item['type'] ?? '';
                 $data = $item['data'] ?? [];
 
-                if (empty($data)) continue;
+                if (empty($data)) {
+                    continue;
+                }
 
                 switch ($type) {
                     case 'village':
@@ -88,7 +90,7 @@ class MobileSyncController extends Controller
                         );
 
                         // Save a baseline health record
-                        $hasDiseases = !empty($data['chronicDiseases']);
+                        $hasDiseases = ! empty($data['chronicDiseases']);
                         $healthRecord = HealthRecord::create([
                             'individual_id' => $individual->id,
                             'height_cm' => null,
@@ -159,9 +161,10 @@ class MobileSyncController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Synchronization failed: ' . $e->getMessage(),
+                'message' => 'Synchronization failed: '.$e->getMessage(),
             ], 500);
         }
     }

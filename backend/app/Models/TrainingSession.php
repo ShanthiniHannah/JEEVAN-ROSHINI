@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class TrainingSession extends Model
 {
@@ -36,9 +36,9 @@ class TrainingSession extends Model
      */
     protected $casts = [
         'completed_at' => 'datetime',
-        'quiz_score'   => 'integer',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'quiz_score' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

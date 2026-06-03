@@ -2,19 +2,21 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Village;
 use App\Models\Family;
+use App\Models\Village;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class ApiIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
     private string $adminToken = '';
+
     private string $vhwToken = '';
+
     private string $directorToken = '';
 
     protected function setUp(): void
@@ -24,8 +26,8 @@ class ApiIntegrationTest extends TestCase
         $this->adminToken = $this->getTokenFor('admin@ayathanatrust.org', 'admin123');
         $this->vhwToken = $this->getTokenFor('preema@ayathanatrust.org', 'vhw123');
         $this->directorToken = $this->getTokenFor('director@ayathanatrust.org', 'director123');
-        
-        \Illuminate\Support\Facades\Auth::logout();
+
+        Auth::logout();
         $this->app['auth']->forgetUser();
     }
 
@@ -35,6 +37,7 @@ class ApiIntegrationTest extends TestCase
             'email' => $email,
             'password' => $password,
         ]);
+
         return $response['token'];
     }
 
@@ -208,7 +211,7 @@ class ApiIntegrationTest extends TestCase
         // Sanctum may return 401 or redirect to login depending on configuration
         $this->assertTrue(
             $response->status() === 401 || $response->status() === 302,
-            'Expected 401 or 302, got ' . $response->status()
+            'Expected 401 or 302, got '.$response->status()
         );
     }
 

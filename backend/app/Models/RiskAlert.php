@@ -10,19 +10,29 @@ class RiskAlert extends Model
     use SoftDeletes;
 
     // ─── Rule-based alert type constants ─────────────────────────────────────
-    const TYPE_HYPERTENSION      = 'Hypertension';
-    const TYPE_DIABETES          = 'Diabetes';
-    const TYPE_MALNUTRITION      = 'Malnutrition';
+    const TYPE_HYPERTENSION = 'Hypertension';
+
+    const TYPE_DIABETES = 'Diabetes';
+
+    const TYPE_MALNUTRITION = 'Malnutrition';
+
     const TYPE_HIGH_RISK_PREGNANCY = 'High-Risk-Pregnancy';
-    const TYPE_MISSED_FOLLOWUP   = 'Missed-Followup';
-    const TYPE_ABNORMAL_LAB      = 'Abnormal-Lab-Result';
-    const TYPE_LOW_SPO2          = 'Low-SpO2';
-    const TYPE_HIGH_FEVER        = 'High-Fever';
+
+    const TYPE_MISSED_FOLLOWUP = 'Missed-Followup';
+
+    const TYPE_ABNORMAL_LAB = 'Abnormal-Lab-Result';
+
+    const TYPE_LOW_SPO2 = 'Low-SpO2';
+
+    const TYPE_HIGH_FEVER = 'High-Fever';
 
     // ─── Severity constants ───────────────────────────────────────────────────
-    const SEVERITY_LOW      = 'low';
-    const SEVERITY_MEDIUM   = 'medium';
-    const SEVERITY_HIGH     = 'high';
+    const SEVERITY_LOW = 'low';
+
+    const SEVERITY_MEDIUM = 'medium';
+
+    const SEVERITY_HIGH = 'high';
+
     const SEVERITY_CRITICAL = 'critical';
 
     protected $fillable = [
@@ -39,9 +49,9 @@ class RiskAlert extends Model
     ];
 
     protected $casts = [
-        'trigger_data'     => 'array',
-        'acknowledged_at'  => 'datetime',
-        'resolved_at'      => 'datetime',
+        'trigger_data' => 'array',
+        'acknowledged_at' => 'datetime',
+        'resolved_at' => 'datetime',
     ];
 
     /**

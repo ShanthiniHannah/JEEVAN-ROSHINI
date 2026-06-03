@@ -28,7 +28,7 @@ class LabReport extends Model
 
     protected $casts = [
         'is_abnormal' => 'boolean',
-        'test_date'   => 'date',
+        'test_date' => 'date',
         'report_date' => 'date',
     ];
 

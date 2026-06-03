@@ -9,8 +9,6 @@ class FamilyRepository extends BaseRepository
 {
     /**
      * FamilyRepository constructor.
-     *
-     * @param Family $family
      */
     public function __construct(Family $family)
     {
@@ -19,19 +17,13 @@ class FamilyRepository extends BaseRepository
 
     /**
      * Search and paginate family registry with optional village filtering.
-     *
-     * @param string|null $searchQuery
-     * @param string|null $villageId
-     * @param array $assignedVillages
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function searchAndPaginate(?string $searchQuery, ?string $villageId, array $assignedVillages = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->with(['members', 'village']);
 
         // Limit results to assigned villages if not global role
-        if (!empty($assignedVillages)) {
+        if (! empty($assignedVillages)) {
             $query->whereIn('village_id', $assignedVillages);
         }
 
@@ -42,9 +34,9 @@ class FamilyRepository extends BaseRepository
         if ($searchQuery) {
             $query->where(function ($q) use ($searchQuery) {
                 $q->where('id', 'like', "%{$searchQuery}%")
-                  ->orWhere('house_no', 'like', "%{$searchQuery}%")
-                  ->orWhere('address', 'like', "%{$searchQuery}%")
-                  ->orWhere('occupation', 'like', "%{$searchQuery}%");
+                    ->orWhere('house_no', 'like', "%{$searchQuery}%")
+                    ->orWhere('address', 'like', "%{$searchQuery}%")
+                    ->orWhere('occupation', 'like', "%{$searchQuery}%");
             });
         }
 

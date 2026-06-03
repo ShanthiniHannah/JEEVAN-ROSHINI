@@ -7,7 +7,7 @@ import { useOnlineSync } from '../hooks/useOnlineSync';
 import AppShell from '../layouts/AppShell';
 import VhwPortal from '../components/VhwPortal';
 import { StatusBadge } from '../components/ui/StatusBadge';
-import { CheckCircle, Clipboard, ShieldAlert, Award, Calendar, Smartphone } from 'lucide-react';
+import { CheckCircle, Clipboard, ShieldAlert, Award, Calendar, Smartphone, Home, User, AlertTriangle, Map } from 'lucide-react';
 
 /**
  * VhwPage — Village Health Worker portal page.

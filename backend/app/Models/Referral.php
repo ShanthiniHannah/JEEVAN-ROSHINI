@@ -30,9 +30,9 @@ class Referral extends Model
     ];
 
     protected $casts = [
-        'referral_date'    => 'date',
+        'referral_date' => 'date',
         'appointment_date' => 'date',
-        'approved_at'      => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     /**

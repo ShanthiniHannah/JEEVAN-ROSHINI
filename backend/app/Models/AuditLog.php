@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
 {
@@ -50,7 +50,7 @@ class AuditLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withDefault([
-            'name'  => 'System',
+            'name' => 'System',
             'email' => 'system@internal',
         ]);
     }

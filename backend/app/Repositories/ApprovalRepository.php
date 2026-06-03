@@ -10,8 +10,6 @@ class ApprovalRepository extends BaseRepository
 {
     /**
      * ApprovalRepository constructor.
-     *
-     * @param Approval $approval
      */
     public function __construct(Approval $approval)
     {
@@ -20,9 +18,6 @@ class ApprovalRepository extends BaseRepository
 
     /**
      * Fetch pending leave requests with user relationships.
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getPendingLeaves(int $perPage = 15): LengthAwarePaginator
     {
@@ -34,9 +29,6 @@ class ApprovalRepository extends BaseRepository
 
     /**
      * Fetch all leave requests.
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getAllLeaves(int $perPage = 15): LengthAwarePaginator
     {
@@ -47,9 +39,6 @@ class ApprovalRepository extends BaseRepository
 
     /**
      * Find a specific leave request.
-     *
-     * @param int $id
-     * @return LeaveRequest
      */
     public function findLeaveOrFail(int $id): LeaveRequest
     {

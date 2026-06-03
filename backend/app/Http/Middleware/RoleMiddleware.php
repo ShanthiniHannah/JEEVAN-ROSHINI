@@ -11,16 +11,13 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  ...$roles
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -32,7 +29,7 @@ class RoleMiddleware
         }
 
         return response()->json([
-            'message' => 'Unauthorized. Required role: ' . implode(' or ', $roles)
+            'message' => 'Unauthorized. Required role: '.implode(' or ', $roles),
         ], 403);
     }
 }

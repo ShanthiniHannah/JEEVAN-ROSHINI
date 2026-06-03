@@ -9,8 +9,6 @@ class AuditRepository extends BaseRepository
 {
     /**
      * AuditRepository constructor.
-     *
-     * @param AuditLog $auditLog
      */
     public function __construct(AuditLog $auditLog)
     {
@@ -19,11 +17,6 @@ class AuditRepository extends BaseRepository
 
     /**
      * Fetch paginated audit trail logs.
-     *
-     * @param string|null $event
-     * @param int|null $userId
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getLogs(?string $event, ?int $userId, int $perPage = 25): LengthAwarePaginator
     {

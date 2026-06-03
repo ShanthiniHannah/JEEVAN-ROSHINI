@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class StaffProfile extends Model
 {
@@ -28,8 +28,8 @@ class StaffProfile extends Model
      */
     protected $casts = [
         'assigned_villages' => 'array',   // JSON column storing array of village IDs
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

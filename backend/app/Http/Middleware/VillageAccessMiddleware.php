@@ -11,15 +11,13 @@ class VillageAccessMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -35,9 +33,9 @@ class VillageAccessMiddleware
             $profile = $user->staffProfile;
             $assignedVillages = $profile ? ($profile->assigned_villages ?? []) : [];
 
-            if (!in_array($villageId, $assignedVillages)) {
+            if (! in_array($villageId, $assignedVillages)) {
                 return response()->json([
-                    'message' => 'Forbidden. You are not authorized to access or submit data for village: ' . $villageId
+                    'message' => 'Forbidden. You are not authorized to access or submit data for village: '.$villageId,
                 ], 403);
             }
         }

@@ -3,28 +3,39 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Family;
+use App\Models\HealthRecord;
+use App\Models\Individual;
+use App\Models\LeaveRequest;
+use App\Models\RiskAlert;
+use App\Models\Village;
+use App\Services\ApprovalService;
+use App\Services\AttendanceService;
+use App\Services\AuditLogger;
+use App\Services\AuditService;
 use App\Services\FamilyService;
 use App\Services\IndividualService;
 use App\Services\VillageService;
 use App\Services\VisitService;
-use App\Services\AttendanceService;
-use App\Services\ApprovalService;
-use App\Services\AuditService;
-use App\Services\AuditLogger;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardDataController extends Controller
 {
     protected FamilyService $familyService;
+
     protected IndividualService $individualService;
+
     protected VillageService $villageService;
+
     protected VisitService $visitService;
+
     protected AttendanceService $attendanceService;
+
     protected ApprovalService $approvalService;
+
     protected AuditService $auditService;
 
     public function __construct(
@@ -55,16 +66,16 @@ class DashboardDataController extends Controller
         $analytics = Cache::remember($cacheKey, now()->addMinutes(10), function () {
             return [
                 'totals' => [
-                    'villages' => \App\Models\Village::count(),
-                    'families' => \App\Models\Family::count(),
-                    'individuals' => \App\Models\Individual::count(),
-                    'risk_alerts' => \App\Models\RiskAlert::where('status', 'Active')->count(),
+                    'villages' => Village::count(),
+                    'families' => Family::count(),
+                    'individuals' => Individual::count(),
+                    'risk_alerts' => RiskAlert::where('status', 'Active')->count(),
                 ],
                 'disease_prevalence' => [
-                    'diabetes' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Diabetes')->count(),
-                    'hypertension' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Hypertension')->count(),
-                    'tb' => \App\Models\HealthRecord::whereJsonContains('chronic_diseases', 'Tuberculosis')->count(),
-                ]
+                    'diabetes' => HealthRecord::whereJsonContains('chronic_diseases', 'Diabetes')->count(),
+                    'hypertension' => HealthRecord::whereJsonContains('chronic_diseases', 'Hypertension')->count(),
+                    'tb' => HealthRecord::whereJsonContains('chronic_diseases', 'Tuberculosis')->count(),
+                ],
             ];
         });
 
@@ -83,6 +94,7 @@ class DashboardDataController extends Controller
         }
 
         $villages = $this->villageService->listVillages($assigned);
+
         return response()->json($villages);
     }
 
@@ -118,6 +130,7 @@ class DashboardDataController extends Controller
         ]);
 
         $family = $this->familyService->registerFamily($request->all());
+
         return response()->json(['success' => true, 'data' => $family], 201);
     }
 
@@ -153,6 +166,7 @@ class DashboardDataController extends Controller
         ]);
 
         $individual = $this->individualService->registerIndividual($request->all());
+
         return response()->json(['success' => true, 'data' => $individual], 201);
     }
 
@@ -168,8 +182,8 @@ class DashboardDataController extends Controller
             'success' => true,
             'data' => [
                 'mobile_number' => $individual->mobile_number,
-                'aadhaar_masked' => $individual->aadhaar_masked ?? 'XXXX-XXXX-XXXX'
-            ]
+                'aadhaar_masked' => $individual->aadhaar_masked ?? 'XXXX-XXXX-XXXX',
+            ],
         ]);
     }
 
@@ -190,6 +204,7 @@ class DashboardDataController extends Controller
         }
 
         $visits = $this->visitService->listVisits($userId, $assigned);
+
         return response()->json($visits);
     }
 
@@ -208,6 +223,7 @@ class DashboardDataController extends Controller
         $data['visit_date'] = now()->toDateString();
 
         $visit = $this->visitService->logVisit($data);
+
         return response()->json(['success' => true, 'data' => $visit], 201);
     }
 
@@ -220,6 +236,7 @@ class DashboardDataController extends Controller
         $userId = $user->hasRole('vhw') ? $user->id : null;
 
         $logs = $this->attendanceService->listLogs($userId);
+
         return response()->json($logs);
     }
 
@@ -232,6 +249,7 @@ class DashboardDataController extends Controller
 
         try {
             $attendance = $this->attendanceService->checkIn($request->user()->id, $request->gps_coords);
+
             return response()->json(['success' => true, 'data' => $attendance], 201);
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -245,6 +263,7 @@ class DashboardDataController extends Controller
     {
         try {
             $attendance = $this->attendanceService->checkOut($request->user()->id);
+
             return response()->json(['success' => true, 'data' => $attendance]);
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -260,8 +279,9 @@ class DashboardDataController extends Controller
         if ($user->hasRole('project-director') || $user->hasRole('super-admin')) {
             $leaves = $this->approvalService->listAllLeaves();
         } else {
-            $leaves = \App\Models\LeaveRequest::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate(15);
+            $leaves = LeaveRequest::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate(15);
         }
+
         return response()->json($leaves);
     }
 
@@ -277,6 +297,7 @@ class DashboardDataController extends Controller
         ]);
 
         $leave = $this->approvalService->applyForLeave($request->user()->id, $request->all());
+
         return response()->json(['success' => true, 'data' => $leave], 201);
     }
 
@@ -298,6 +319,7 @@ class DashboardDataController extends Controller
                 $request->status,
                 $request->notes
             );
+
             return response()->json(['success' => true, 'data' => $leave]);
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -310,6 +332,7 @@ class DashboardDataController extends Controller
     public function getAudits(Request $request)
     {
         $logs = $this->auditService->listLogs($request->query('event'), $request->query('user_id'));
+
         return response()->json($logs);
     }
 
@@ -319,7 +342,7 @@ class DashboardDataController extends Controller
     public function runBackup(Request $request)
     {
         $user = $request->user();
-        if (!$user->hasRole('super-admin')) {
+        if (! $user->hasRole('super-admin')) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
@@ -327,8 +350,8 @@ class DashboardDataController extends Controller
             // Standardize simulated backup generation in local workspace
             $timestamp = now()->format('Y-m-d_H-i-s');
             $filename = "backup-jeevan-roshini-{$timestamp}.sql";
-            $backupContent = "-- Jeevan Roshini Backup File\n-- Generated by Super Admin {$user->name}\n-- Timestamp: " . now()->toDateTimeString() . "\n";
-            
+            $backupContent = "-- Jeevan Roshini Backup File\n-- Generated by Super Admin {$user->name}\n-- Timestamp: ".now()->toDateTimeString()."\n";
+
             // Get database credentials
             $dbName = config('database.connections.mysql.database');
             $backupContent .= "CREATE DATABASE IF NOT EXISTS `{$dbName}`;\nUSE `{$dbName}`;\n";
@@ -337,7 +360,7 @@ class DashboardDataController extends Controller
             $filePath = storage_path("app/backups/{$filename}");
 
             // Perform audit log
-            AuditLogger::logAction('DATABASE_BACKUP', "Super Admin triggered backup: {$filename}. File size: " . strlen($backupContent) . " bytes");
+            AuditLogger::logAction('DATABASE_BACKUP', "Super Admin triggered backup: {$filename}. File size: ".strlen($backupContent).' bytes');
 
             return response()->json([
                 'success' => true,
@@ -346,11 +369,11 @@ class DashboardDataController extends Controller
                     'filename' => $filename,
                     'file_size' => '4.2 KB',
                     'timestamp' => now()->toDateTimeString(),
-                    'storage' => 'Local + Encrypted Cloud copy queued'
-                ]
+                    'storage' => 'Local + Encrypted Cloud copy queued',
+                ],
             ]);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Backup failed: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Backup failed: '.$e->getMessage()], 500);
         }
     }
 }

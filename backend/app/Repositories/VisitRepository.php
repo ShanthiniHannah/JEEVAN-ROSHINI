@@ -9,8 +9,6 @@ class VisitRepository extends BaseRepository
 {
     /**
      * VisitRepository constructor.
-     *
-     * @param Visit $visit
      */
     public function __construct(Visit $visit)
     {
@@ -19,11 +17,6 @@ class VisitRepository extends BaseRepository
 
     /**
      * Retrieve visits mapped to health workers or assigned villages.
-     *
-     * @param int|null $userId
-     * @param array $assignedVillages
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getVisitsByScope(?int $userId, array $assignedVillages = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -33,7 +26,7 @@ class VisitRepository extends BaseRepository
             $query->where('user_id', $userId);
         }
 
-        if (!empty($assignedVillages)) {
+        if (! empty($assignedVillages)) {
             $query->whereHas('family', function ($q) use ($assignedVillages) {
                 $q->whereIn('village_id', $assignedVillages);
             });

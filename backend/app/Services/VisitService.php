@@ -2,23 +2,19 @@
 
 namespace App\Services;
 
-use App\Repositories\VisitRepository;
 use App\Models\Visit;
+use App\Repositories\VisitRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VisitService
 {
     /**
      * The visit repository.
-     *
-     * @var VisitRepository
      */
     protected VisitRepository $visitRepo;
 
     /**
      * VisitService constructor.
-     *
-     * @param VisitRepository $visitRepo
      */
     public function __construct(VisitRepository $visitRepo)
     {
@@ -27,10 +23,6 @@ class VisitService
 
     /**
      * Get paginated visits based on boundaries.
-     *
-     * @param int|null $userId
-     * @param array $assignedVillages
-     * @return LengthAwarePaginator
      */
     public function listVisits(?int $userId, array $assignedVillages = []): LengthAwarePaginator
     {
@@ -39,9 +31,6 @@ class VisitService
 
     /**
      * Log a new visit.
-     *
-     * @param array $data
-     * @return Visit
      */
     public function logVisit(array $data): Visit
     {

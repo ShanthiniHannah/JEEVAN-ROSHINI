@@ -42,14 +42,14 @@ class AuditObserver
      */
     public function updated(Model $model): void
     {
-        $dirty    = $model->getDirty();
+        $dirty = $model->getDirty();
         $original = array_intersect_key($model->getOriginal(), $dirty);
 
         // Only log if meaningful fields changed (ignore updated_at-only saves)
         $ignoredFields = ['updated_at'];
-        $meaningful    = array_diff_key($dirty, array_flip($ignoredFields));
+        $meaningful = array_diff_key($dirty, array_flip($ignoredFields));
 
-        if (!empty($meaningful)) {
+        if (! empty($meaningful)) {
             AuditLogger::log(
                 $model,
                 'updated',

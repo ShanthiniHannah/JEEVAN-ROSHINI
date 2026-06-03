@@ -25,7 +25,7 @@ class Medication extends Model
 
     protected $casts = [
         'prescribed_on' => 'date',
-        'end_date'      => 'date',
+        'end_date' => 'date',
     ];
 
     /**

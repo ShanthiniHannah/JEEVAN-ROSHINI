@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Training extends Model
 {
@@ -30,8 +30,8 @@ class Training extends Model
     protected $casts = [
         'scheduled_date' => 'date',
         'quiz_questions' => 'array',   // JSON: [{question, options[], answer}, ...]
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -48,7 +48,7 @@ class Training extends Model
     public function completedByUsers()
     {
         return $this->belongsToMany(User::class, 'training_sessions')
-                    ->withPivot(['completed_at', 'quiz_score', 'certificate_path'])
-                    ->withTimestamps();
+            ->withPivot(['completed_at', 'quiz_score', 'certificate_path'])
+            ->withTimestamps();
     }
 }

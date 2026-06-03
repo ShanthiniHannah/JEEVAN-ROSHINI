@@ -10,8 +10,6 @@ class VillageRepository extends BaseRepository
 {
     /**
      * VillageRepository constructor.
-     *
-     * @param Village $village
      */
     public function __construct(Village $village)
     {
@@ -20,9 +18,6 @@ class VillageRepository extends BaseRepository
 
     /**
      * Get all villages, cached in Redis indefinitely or for 30 days.
-     *
-     * @param array $assignedVillages
-     * @return Collection
      */
     public function allCached(array $assignedVillages = []): Collection
     {
@@ -32,7 +27,7 @@ class VillageRepository extends BaseRepository
             return $this->model->with('block.district.organization')->orderBy('name', 'asc')->get();
         });
 
-        if (!empty($assignedVillages)) {
+        if (! empty($assignedVillages)) {
             return $villages->whereIn('id', $assignedVillages)->values();
         }
 

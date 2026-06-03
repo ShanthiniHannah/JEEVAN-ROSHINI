@@ -10,6 +10,7 @@ class Individual extends Model
     use SoftDeletes;
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -144,6 +145,6 @@ class Individual extends Model
      */
     public function scopeAtRisk($query)
     {
-        return $query->whereHas('riskAlerts', fn($q) => $q->where('status', 'Active'));
+        return $query->whereHas('riskAlerts', fn ($q) => $q->where('status', 'Active'));
     }
 }

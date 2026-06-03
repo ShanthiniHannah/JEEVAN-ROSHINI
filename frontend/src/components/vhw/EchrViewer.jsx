@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardList, AlertTriangle } from 'lucide-react';
+import { ClipboardList, AlertTriangle, Check } from 'lucide-react';
 import { RevealEye } from '../ui/RevealEye';
 import { StatusBadge } from '../ui/StatusBadge';
 

@@ -19,7 +19,7 @@ class Approval extends Model
 
     protected $casts = [
         'submitted_at' => 'datetime',
-        'reviewed_at'  => 'datetime',
+        'reviewed_at' => 'datetime',
     ];
 
     /**

@@ -7,18 +7,19 @@ import logoLight from '../assets/logo_light.png';
 import logoBrand from '../assets/logo_brand.png';
 
 export default function LogoShowcase({ isOpen, onClose }) {
-  if (!isOpen) return null;
-
   const [logoType, setLogoType] = useState('brand'); // 'dark' | 'light' | 'brand'
   const [bgColor, setBgColor] = useState('#0d9488'); // Brand teal default
   const [customBg, setCustomBg] = useState('#0d9488');
-  
+
   // Customization states
   const [glowIntensity, setGlowIntensity] = useState('medium'); // 'none' | 'low' | 'medium' | 'high'
   const [shadowDepth, setShadowDepth] = useState('lg'); // 'none' | 'md' | 'lg' | '2xl'
   const [shape, setShape] = useState('rounded-3xl'); // 'rounded-none' | 'rounded-2xl' | 'rounded-3xl' | 'rounded-full'
   const [showPattern, setShowPattern] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  // Early return AFTER all hooks (Rules of Hooks requirement)
+  if (!isOpen) return null;
 
   // Background presets
   const presets = [

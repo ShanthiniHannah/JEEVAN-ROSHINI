@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
@@ -205,7 +206,7 @@ class AuthTest extends TestCase
         $token = $login['token'];
 
         $this->app['auth']->forgetUser();
-        \Illuminate\Support\Facades\Auth::forgetUser();
+        Auth::forgetUser();
 
         $profile = $this->withHeader('Authorization', "Bearer {$token}")
             ->getJson('/api/v1/me');
@@ -213,21 +214,21 @@ class AuthTest extends TestCase
         $this->assertEquals('admin@ayathanatrust.org', $profile['email']);
 
         $this->app['auth']->forgetUser();
-        \Illuminate\Support\Facades\Auth::forgetUser();
+        Auth::forgetUser();
 
         $logout = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/v1/logout');
         $logout->assertStatus(200);
 
         $this->app['auth']->forgetUser();
-        \Illuminate\Support\Facades\Auth::forgetUser();
+        Auth::forgetUser();
 
         $staleProfile = $this->withHeader('Authorization', "Bearer {$token}")
             ->getJson('/api/v1/me');
 
         $this->assertTrue(
             $staleProfile->status() === 401 || $staleProfile->status() === 302,
-            'Expected 401/302 after logout, got ' . $staleProfile->status()
+            'Expected 401/302 after logout, got '.$staleProfile->status()
         );
     }
 }

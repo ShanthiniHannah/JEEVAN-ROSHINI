@@ -2,23 +2,19 @@
 
 namespace App\Repositories;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class BaseRepository
 {
     /**
      * The model instance.
-     *
-     * @var Model
      */
     protected Model $model;
 
     /**
      * BaseRepository constructor.
-     *
-     * @param Model $model
      */
     public function __construct(Model $model)
     {
@@ -28,10 +24,7 @@ abstract class BaseRepository
     /**
      * Find a record by its primary key.
      *
-     * @param mixed $id
-     * @param array $columns
-     * @param array $relations
-     * @return Model|null
+     * @param  mixed  $id
      */
     public function find($id, array $columns = ['*'], array $relations = []): ?Model
     {
@@ -41,10 +34,7 @@ abstract class BaseRepository
     /**
      * Find a record or throw a ModelNotFoundException.
      *
-     * @param mixed $id
-     * @param array $columns
-     * @param array $relations
-     * @return Model
+     * @param  mixed  $id
      */
     public function findOrFail($id, array $columns = ['*'], array $relations = []): Model
     {
@@ -53,10 +43,6 @@ abstract class BaseRepository
 
     /**
      * Get all records.
-     *
-     * @param array $columns
-     * @param array $relations
-     * @return Collection
      */
     public function all(array $columns = ['*'], array $relations = []): Collection
     {
@@ -65,11 +51,6 @@ abstract class BaseRepository
 
     /**
      * Paginate records.
-     *
-     * @param int $perPage
-     * @param array $columns
-     * @param array $relations
-     * @return LengthAwarePaginator
      */
     public function paginate(int $perPage = 15, array $columns = ['*'], array $relations = []): LengthAwarePaginator
     {
@@ -78,9 +59,6 @@ abstract class BaseRepository
 
     /**
      * Create a new record.
-     *
-     * @param array $attributes
-     * @return Model
      */
     public function create(array $attributes): Model
     {
@@ -90,26 +68,25 @@ abstract class BaseRepository
     /**
      * Update an existing record.
      *
-     * @param mixed $id
-     * @param array $attributes
-     * @return Model
+     * @param  mixed  $id
      */
     public function update($id, array $attributes): Model
     {
         $record = $this->findOrFail($id);
         $record->update($attributes);
+
         return $record;
     }
 
     /**
      * Delete a record by ID.
      *
-     * @param mixed $id
-     * @return bool
+     * @param  mixed  $id
      */
     public function delete($id): bool
     {
         $record = $this->findOrFail($id);
+
         return $record->delete();
     }
 }

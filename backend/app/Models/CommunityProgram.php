@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class CommunityProgram extends Model
 {
@@ -37,10 +37,10 @@ class CommunityProgram extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'program_date'      => 'date',
+        'program_date' => 'date',
         'participants_count' => 'integer',
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -16,7 +17,7 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // 1. Create permissions
         $permissions = [
@@ -36,7 +37,7 @@ class RolesAndPermissionsSeeder extends Seeder
             // Social support
             'manage vulnerable registry', 'disburse social support',
             // Reporting
-            'export reports'
+            'export reports',
         ];
 
         foreach ($permissions as $permission) {
@@ -44,14 +45,14 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // 2. Create Roles and Assign Permissions
-        
+
         // VHW: Village Health Worker
         $vhwRole = Role::create(['name' => 'vhw']);
         $vhwRole->givePermissionTo([
             'register family', 'edit family records',
             'register individual', 'edit ECHR records', 'view ECHR records',
             'log household visits', 'log community activities', 'submit GPS attendance',
-            'submit leave requests'
+            'submit leave requests',
         ]);
 
         // Project Director
@@ -60,7 +61,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view ECHR records',
             'approve leave requests',
             'grade training assessments', 'evaluate staff performance', 'manage training modules',
-            'export reports'
+            'export reports',
         ]);
 
         // Super Admin (Ayathana Trust)
@@ -69,13 +70,13 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdminRole->givePermissionTo(Permission::all());
 
         // 3. Create Default Accounts for the Prototype
-        
+
         // Super Admin User
         $adminUser = User::create([
             'name' => 'Ayathana Trust Administrator',
             'email' => 'admin@ayathanatrust.org',
             'password' => Hash::make('admin123'),
-            'status' => 'Active'
+            'status' => 'Active',
         ]);
         $adminUser->assignRole($superAdminRole);
 
@@ -84,7 +85,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name' => 'Dr. Ramesh Kumar',
             'email' => 'director@ayathanatrust.org',
             'password' => Hash::make('director123'),
-            'status' => 'Active'
+            'status' => 'Active',
         ]);
         $directorUser->assignRole($directorRole);
 
@@ -93,7 +94,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name' => 'Preema D\'Souza',
             'email' => 'preema@ayathanatrust.org',
             'password' => Hash::make('vhw123'),
-            'status' => 'Active'
+            'status' => 'Active',
         ]);
         $vhwUser->assignRole($vhwRole);
     }

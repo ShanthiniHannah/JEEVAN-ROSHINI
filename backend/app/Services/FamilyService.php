@@ -2,23 +2,19 @@
 
 namespace App\Services;
 
-use App\Repositories\FamilyRepository;
 use App\Models\Family;
+use App\Repositories\FamilyRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class FamilyService
 {
     /**
      * The family repository.
-     *
-     * @var FamilyRepository
      */
     protected FamilyRepository $familyRepo;
 
     /**
      * FamilyService constructor.
-     *
-     * @param FamilyRepository $familyRepo
      */
     public function __construct(FamilyRepository $familyRepo)
     {
@@ -27,11 +23,6 @@ class FamilyService
 
     /**
      * Get list of families with search and boundary conditions.
-     *
-     * @param string|null $search
-     * @param string|null $villageId
-     * @param array $assignedVillages
-     * @return LengthAwarePaginator
      */
     public function listFamilies(?string $search, ?string $villageId, array $assignedVillages = []): LengthAwarePaginator
     {
@@ -40,15 +31,12 @@ class FamilyService
 
     /**
      * Create a new household.
-     *
-     * @param array $data
-     * @return Family
      */
     public function registerFamily(array $data): Family
     {
         // Enforce UUID generation for family ID if not supplied (for offline sync)
         if (empty($data['id'])) {
-            $data['id'] = 'FAM-' . mt_rand(1000, 9999) . '-' . mt_rand(100, 999);
+            $data['id'] = 'FAM-'.mt_rand(1000, 9999).'-'.mt_rand(100, 999);
         }
 
         $family = $this->familyRepo->create($data);
@@ -61,9 +49,6 @@ class FamilyService
 
     /**
      * Find a specific family registry.
-     *
-     * @param string $id
-     * @return Family
      */
     public function getFamily(string $id): Family
     {
@@ -72,10 +57,6 @@ class FamilyService
 
     /**
      * Update household parameters.
-     *
-     * @param string $id
-     * @param array $data
-     * @return Family
      */
     public function updateFamily(string $id, array $data): Family
     {
@@ -92,9 +73,6 @@ class FamilyService
 
     /**
      * Soft delete family registry.
-     *
-     * @param string $id
-     * @return bool
      */
     public function removeFamily(string $id): bool
     {

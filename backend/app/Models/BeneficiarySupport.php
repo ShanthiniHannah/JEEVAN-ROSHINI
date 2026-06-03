@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class BeneficiarySupport extends Model
 {
@@ -37,9 +37,9 @@ class BeneficiarySupport extends Model
      */
     protected $casts = [
         'distribution_date' => 'date',
-        'financial_amount'  => 'decimal:2',
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'financial_amount' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

@@ -10,12 +10,17 @@ class Document extends Model
     use SoftDeletes;
 
     // ─── Category constants ───────────────────────────────────────────────────
-    const CATEGORY_PRESCRIPTIONS    = 'prescriptions';
-    const CATEGORY_LAB_REPORTS      = 'lab_reports';
-    const CATEGORY_PHOTOS           = 'photos';
-    const CATEGORY_GOVERNMENT_DOCS  = 'government_docs';
-    const CATEGORY_TRAINING_DOCS    = 'training_docs';
-    const CATEGORY_DISCHARGE        = 'discharge_summaries';
+    const CATEGORY_PRESCRIPTIONS = 'prescriptions';
+
+    const CATEGORY_LAB_REPORTS = 'lab_reports';
+
+    const CATEGORY_PHOTOS = 'photos';
+
+    const CATEGORY_GOVERNMENT_DOCS = 'government_docs';
+
+    const CATEGORY_TRAINING_DOCS = 'training_docs';
+
+    const CATEGORY_DISCHARGE = 'discharge_summaries';
 
     protected $fillable = [
         'documentable_type',

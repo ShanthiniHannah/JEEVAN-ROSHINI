@@ -1,16 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DashboardDataController;
 use App\Http\Controllers\API\MobileSyncController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Exposes the Jeevan Roshini RESTful API endpoints securely versioned 
+| Exposes the Jeevan Roshini RESTful API endpoints securely versioned
 | under the /api/v1/ prefix.
 |
 */
@@ -24,7 +24,7 @@ Route::prefix('v1')->group(function () {
         // Authenticated Session info
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
-        
+
         // Aggregate Dashboard & Analytics (Cached in Redis)
         Route::get('/dashboard', [DashboardDataController::class, 'dashboard']);
 
