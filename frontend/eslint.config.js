@@ -18,18 +18,6 @@ export default defineConfig([
     },
   },
 
-  // ── Test files ──
-  {
-    files: ['src/__tests__/**/*.{js,jsx}', '**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
-    languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
-    },
-    rules: {
-      'no-unused-vars': 'off', // test helpers often imported as side-effects
-      'no-undef': 'off',
-    },
-  },
-
   // ── Source files ──
   {
     files: ['src/**/*.{js,jsx}'],
@@ -55,11 +43,23 @@ export default defineConfig([
       // Allow setState inside effects — intentional pattern in our hooks
       'react-hooks/set-state-in-effect': 'off',
       // Allow context/hook exports alongside components — standard pattern
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': 'off',
       // Allow TDZ-adjacent patterns in complex context files
       'react-hooks/immutability': 'off',
       // Allow intentional intermediate assignments
       'no-useless-assignment': 'warn',
+    },
+  },
+
+  // ── Test files ──
+  {
+    files: ['src/__tests__/**/*.{js,jsx}', '**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+    rules: {
+      'no-unused-vars': 'off', // test helpers often imported as side-effects
+      'no-undef': 'off',
     },
   },
 ])

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Paintbrush, Check, Copy, Sliders, Eye, X, Sparkles, Layers, Info, CheckCircle
+  Paintbrush, Check, Copy, Sliders, X, Sparkles, Layers, Info
 } from 'lucide-react';
 import logoDark from '../assets/logo_dark.png';
 import logoLight from '../assets/logo_light.png';

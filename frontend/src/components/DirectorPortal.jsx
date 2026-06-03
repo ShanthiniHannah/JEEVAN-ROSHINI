@@ -4,8 +4,8 @@ import { api } from '../services/apiClient.js';
 import { useTheme } from '../hooks/useTheme';
 import { motion } from 'framer-motion';
 import {
-  Users, Clock, Heart, Award, CheckCircle2,
-  MapPin, ClipboardList, CheckSquare, BarChart2, BookOpen, Globe
+  Clock, Heart, Award, CheckCircle2,
+  MapPin, CheckSquare, BarChart2, BookOpen, Globe
 } from 'lucide-react';
 
 // Decoupled Sub-Components
@@ -53,13 +53,7 @@ export default function DirectorPortal({ state, setState }) {
 
   // Role-Based Data Visibility: Dr. Ramesh Kumar oversees Chikkamagaluru Block
   const assignedBlock = "Chikkamagaluru Block";
-  const visibleVillages = useMemo(() => {
-    return state.villages; // All demo villages belong to this scope
-  }, [state.villages]);
 
-  const visibleFamilies = useMemo(() => {
-    return state.families;
-  }, [state.families]);
 
   // Generic Approval Workflow Handlers
   const handleUpdateStatus = async (entity, id, newStatus) => {

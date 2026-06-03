@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api } from '../services/apiClient.js';
 import { useTheme } from '../hooks/useTheme';
 import {
-  MapPin, ClipboardList, CheckSquare, AlertTriangle, Heart, Bell, FileText, Activity, Database, BarChart2, Shield
+  MapPin, AlertTriangle, Heart, Bell, FileText, Activity, Database, BarChart2, Shield
 } from 'lucide-react';
 
 // Decoupled Sub-Components

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from '../context/LanguageContext';
 import { evaluateRiskAlerts } from '../utils/riskAlertEngine';
 import { api } from '../services/apiClient.js';
 import { 
@@ -27,11 +26,10 @@ export default function VhwPortal({
   setIsOnline, 
   offlineQueue, 
   setOfflineQueue, 
-  triggerSync,
+  _triggerSync,
   currentUser,
-  env
+  _env
 }) {
-  const { t } = useTranslation();
   const { subTab } = useParams();
   const navigate = useNavigate();
   const activeSubTab = subTab || 'home';
@@ -46,7 +44,7 @@ export default function VhwPortal({
   
   // Role-Based Data Visibility (Assigned Villages)
   const assignedVillageIds = useMemo(() => {
-    let baseIds = [];
+    let baseIds;
     if (currentUser?.name?.includes('Preema')) {
       baseIds = ['VLG-4829', 'VLG-1029']; // Gundya, Mudigere
     } else if (currentUser?.name?.includes('Shobha')) {
@@ -298,7 +296,7 @@ export default function VhwPortal({
           living_alone: individualForm.livingAlone
         });
         if (response.data.success) {
-          const [freshIndividuals, freshDashboard] = await Promise.all([
+          const [freshIndividuals, _freshDashboard] = await Promise.all([
             api.get('/individuals'),
             api.get('/dashboard')
           ]);
@@ -411,7 +409,7 @@ export default function VhwPortal({
           setAttendanceTime(time);
           notify("Checked-in successfully via authenticated GPS!");
         }
-      } catch (err) {
+      } catch (_err) {
         notifyError("Failed to check-in. Ensure GPS services are enabled.");
       }
     } else {
@@ -431,7 +429,7 @@ export default function VhwPortal({
           setAttendanceStatus('checked-out');
           notify("Shift completed and Checked-out!");
         }
-      } catch (err) {
+      } catch (_err) {
         notifyError("Failed to check-out.");
       }
     } else {
@@ -484,7 +482,7 @@ export default function VhwPortal({
     notify(`Quiz completed! You scored ${score}/${quizQuestions.length}`);
   };
 
-  const toggleRevealPii = async (patientId, patientName) => {
+  const toggleRevealPii = async (patientId, _patientName) => {
     const isRevealed = !!revealedPii[patientId];
     if (!isRevealed) {
       try {
@@ -493,7 +491,7 @@ export default function VhwPortal({
           setRevealedPii(prev => ({ ...prev, [patientId]: true }));
           notify("PII revealed and logged to central security auditor.");
         }
-      } catch (err) {
+      } catch (_err) {
         notifyError("Failed to reveal patient details.");
       }
     } else {

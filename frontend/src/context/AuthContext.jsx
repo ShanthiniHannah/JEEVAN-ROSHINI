@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       await api.post('/logout');
-    } catch (e) {
+    } catch (_e) {
       // Ignore network errors on logout
     } finally {
       localStorage.removeItem('jeevan_roshini_token');

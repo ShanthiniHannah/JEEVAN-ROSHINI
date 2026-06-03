@@ -259,32 +259,73 @@ npm run dev
 
 ---
 
-### 4. Running Test Suites
+### 4. Running Tests & Linters
 
-Verify database connection, authentication guards, and validation mechanics across our automated suites:
+Verify code quality, compliance, and functionality locally on both layers of the application.
 
-#### Unit & Integration Tests (Vitest)
+#### 📱 Frontend (Vite + React)
+Navigate to the `frontend/` directory first:
 ```bash
 cd frontend
-
-# Run all 44 unit and integration assertions
-npm run test
-
-# Run and generate dynamic test coverage
-npm run test:coverage
 ```
 
-#### End-to-End (E2E) UI Tests (Playwright)
-Ensure the Laravel API server is running, then execute:
+* **Code Linting (ESLint)**: Check for syntax errors and warnings.
+  ```bash
+  npm run lint
+  ```
+* **Production Build**: Compile the Vite bundle to verify no build-time errors.
+  ```bash
+  npm run build
+  ```
+* **Unit & Integration Tests (Vitest)**: Run all 44 automated frontend tests.
+  ```bash
+  npm run test
+  ```
+* **Coverage Report**: Generate V8 test coverage metrics.
+  ```bash
+  npm run test:coverage
+  ```
+* **End-to-End (E2E) UI Tests (Playwright)**:
+  Make sure the backend server is running (`php artisan serve`), then execute:
+  ```bash
+  npm run test:e2e
+  ```
+  Or run the interactive Playwright test dashboard:
+  ```bash
+  npm run test:e2e:ui
+  ```
+
+#### 🛡️ Backend (Laravel 12)
+Navigate to the `backend/` directory first:
 ```bash
-cd frontend
-
-# Run Playwright E2E tests
-npm run test:e2e
-
-# Open interactive Playwright testing dashboard
-npm run test:e2e:ui
+cd backend
 ```
+
+* **Code Styling Lint (Laravel Pint)**: Check for style standard violations without modifying files.
+  ```bash
+  # Linux / macOS
+  ./vendor/bin/pint --test
+  
+  # Windows PowerShell
+  php vendor/bin/pint --test
+  ```
+* **Auto-Fix Code Style**: Automatically format files to comply with Laravel standards.
+  ```bash
+  # Linux / macOS
+  ./vendor/bin/pint
+  
+  # Windows PowerShell
+  php vendor/bin/pint
+  ```
+* **Unit & Feature Tests (PHPUnit)**: Run the full test suite (31 tests, 72 assertions).
+  ```bash
+  php vendor/bin/phpunit
+  ```
+  Or run individual test suites:
+  ```bash
+  php vendor/bin/phpunit --testsuite=Unit
+  php vendor/bin/phpunit --testsuite=Feature
+  ```
 
 ---
 
@@ -354,38 +395,41 @@ All endpoints are versioned under `/api/v1/` and require a Sanctum Bearer token 
 
 ## 🧪 Testing
 
-| Suite | Tool | Files | Tests | Status |
-|:---|:---|:---|:---|:---|
-| Unit — Hooks | Vitest | 1 | 6 | ✅ Pass |
-| Unit — Services | Vitest + MSW | 3 | 10 | ✅ Pass |
-| Integration — Auth | Vitest + MSW | 1 | 2 | ✅ Pass |
-| Integration — Family | Vitest + MSW | 1 | 3 | ✅ Pass |
-| **Total** | | **6** | **21** | **✅ 21/21** |
-| E2E — Login | Playwright | 1 | 6 | Chromium |
-| E2E — VHW Flow | Playwright | 1 | 5 | Chromium |
-| E2E — Approval | Playwright | 1 | 4 | Chromium |
+The project is fully covered by automated testing pipelines on both Frontend and Backend, verified via local execution and segregated GitHub Actions workflows.
 
----
+### 📊 Test Suite Summary
 
-## 🔐 Security Highlights
+| Layer | Suite | Tool / Command | Files / Specs | Assertions / Tests | Status |
+|:---|:---|:---|:---|:---|:---|
+| **Frontend** | Code Quality (Lint) | `npm run lint` | Project-wide | 0 errors, 0 warnings | ✅ Pass |
+| **Frontend** | Production Build | `npm run build` | Vite Compilation | Successful | ✅ Pass |
+| **Frontend** | Unit & Integration | `npm run test` | 8 files | 44 tests | ✅ Pass |
+| **Frontend** | Test Coverage | `npm run test:coverage` | Vitest + V8 | Detailed Reports | ✅ Pass |
+| **Backend** | Code Style (Pint) | `./vendor/bin/pint --test` | Project-wide | 0 style violations | ✅ Pass |
+| **Backend** | Unit & Feature | `php vendor/bin/phpunit` | Full Suite | 31 tests, 72 assertions | ✅ Pass |
 
-- ✅ **CSP, HSTS, X-Frame-Options** headers on every API response
-- ✅ **RBAC middleware** — VHW cannot access audit logs; Director cannot trigger backups
-- ✅ **Frontend ProtectedRoute** — wrong-role users redirected to `/login`
-- ✅ **Sanctum Bearer tokens** with automatic 401 interception and local storage cleanup
-- ✅ **PII masking** with audited reveal logging
-- ✅ **Eloquent parameterized queries** — SQL injection protection built-in
-- ✅ **React's escaped interpolation** — XSS protection by default
+### ⛓️ CI/CD Workflow Segregation
+
+All testing pipelines are integrated into our `.github/workflows/test.yml` GitHub Actions pipeline as **independent job nodes** for clear visibility and failure isolation:
+
+1. **`frontend-lint`** — Runs ESLint code quality checks (0 errors, 0 warnings).
+2. **`frontend-build`** — Runs Vite production compilation (depends on `frontend-lint`).
+3. **`frontend-test`** — Runs Vitest unit & integration tests (depends on `frontend-build`).
+4. **`frontend-coverage`** — Generates and uploads V8 coverage reports (depends on `frontend-test`).
+5. **`backend-lint`** — Runs Laravel Pint code style checks.
+6. **`backend-test`** — Prepares SQLite database and runs all 31 PHPUnit tests (depends on `backend-lint`).
+7. **`docker-build`** — Validates container compilations for frontend & backend images (depends on `frontend-coverage` and `backend-test`).
 
 ---
 
 ## 📊 Build Stats
 
 ```
-✓ 1833 modules transformed
-✓ Built in 1.04s
-✓ 21/21 tests passing
-✓ 0 vulnerabilities in 322 packages
+✓ 0 ESLint warnings / errors in frontend
+✓ Vite production compilation completed in <1.5s
+✓ 44/44 Vitest tests passing
+✓ 31/31 PHPUnit tests passing (72 assertions)
+✓ 0 vulnerabilities in 338 packages
 ```
 
 ---

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 /**
  * ConfirmModal — Destructive action confirmation modal with a 3-second safety delay.

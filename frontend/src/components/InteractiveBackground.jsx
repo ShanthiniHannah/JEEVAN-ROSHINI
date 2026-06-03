@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 
 /**
  * InteractiveBackground — Community Health Ecosystem
@@ -20,7 +20,7 @@ export default function InteractiveBackground({ theme = 'dark' }) {
   const isLight = theme === 'light';
 
   // Community health node types with colors
-  const nodeTypes = [
+  const nodeTypes = useMemo(() => [
     { label: 'Village',      color: isLight ? [14,116,144] : [34,211,238] },
     { label: 'Family',       color: isLight ? [5,150,105]  : [52,211,153] },
     { label: 'Maternal',     color: isLight ? [124,58,237] : [167,139,250] },
@@ -35,7 +35,7 @@ export default function InteractiveBackground({ theme = 'dark' }) {
     { label: 'Child',        color: isLight ? [217,119,6]  : [251,191,36] },
     { label: 'Water',        color: isLight ? [14,116,144] : [103,232,249] },
     { label: 'Screening',    color: isLight ? [14,116,144] : [34,211,238] },
-  ];
+  ], [isLight]);
 
   const initParticles = useCallback((width, height) => {
     const area = width * height;
@@ -59,7 +59,7 @@ export default function InteractiveBackground({ theme = 'dark' }) {
       });
     }
     return particles;
-  }, [isLight]);
+  }, [nodeTypes]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

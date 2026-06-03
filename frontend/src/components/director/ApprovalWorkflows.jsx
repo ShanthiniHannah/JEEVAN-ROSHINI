@@ -17,7 +17,7 @@ function formatDate(dateStr) {
     const month = months[date.getMonth()];
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
-  } catch (e) {
+  } catch (_e) {
     return dateStr;
   }
 }
