@@ -26,7 +26,7 @@ The platform powers three distinct role-based portals:
 
 | Portal | Role | Core Function |
 |:---|:---|:---|
-| 📱 **VHW Portal** | Village Health Workers | Mobile PWA for offline family/individual registration, visits, GPS attendance, and sync |
+| 📱 **VHW Portal** | Village Health Workers | Mobile PWA for offline family/individual registration, visits, automatic attendance, and sync |
 | 📊 **Director Portal** | Project Director | Approval workflows for leaves, referrals, and field reports with village comparison analytics |
 | 🛡️ **Admin Portal** | Super Admin (Trust) | Audit trail, backup management, staff management, notification logs, and system governance |
 
@@ -37,7 +37,7 @@ The platform powers three distinct role-based portals:
 ### 🏥 Clinical & Field Operations
 - **Family & Individual Registration** — Step-by-step wizard with clinical validation (pregnancy blocking, juvenile diabetes warning, duplicate checks)
 - **VHW Daily Visits** — Log household visits with GPS coordinates, vitals (BP, temp), and follow-up scheduling
-- **GPS Attendance** — Clock-in / clock-out with GPS verification for daily shift tracking
+- **Automated Attendance** — Attendance (check-in / check-out) is automatically tracked upon login and logout (no manual GPS or selfie check-in required)
 - **Risk Alert Engine** — Automated vulnerability scoring based on pregnancy status, age, disability, BPL status, and chronic diseases
 
 ### 🔄 Offline-First PWA
@@ -354,8 +354,8 @@ All endpoints are versioned under `/api/v1/` and require a Sanctum Bearer token 
 | `POST` | `/api/v1/individuals/{id}/reveal` | Bearer | PII reveal (audited) |
 | `GET/POST` | `/api/v1/visits` | Bearer | Field visit logs |
 | `GET` | `/api/v1/attendances` | Bearer | Attendance records |
-| `POST` | `/api/v1/attendance/check-in` | Bearer | GPS clock-in |
-| `POST` | `/api/v1/attendance/check-out` | Bearer | GPS clock-out |
+| `POST` | `/api/v1/attendance/check-in` | Bearer | Automated check-in |
+| `POST` | `/api/v1/attendance/check-out` | Bearer | Automated check-out |
 | `GET/POST` | `/api/v1/leaves` | Bearer | Leave requests |
 | `POST` | `/api/v1/approvals/action` | Director | Approve / reject actions |
 | `GET` | `/api/v1/audits` | Admin | Immutable audit trail |

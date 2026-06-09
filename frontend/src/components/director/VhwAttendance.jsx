@@ -44,11 +44,11 @@ export function VhwAttendance({ state }) {
         </div>
       </div>
 
-      {/* GPS Attendance Table Container */}
+      {/* Daily Attendance Table Container */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden text-[var(--text-primary)]">
         <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-inner)]">
           <h3 className="text-xs font-bold flex items-center gap-2 text-[var(--text-primary)]">
-            <Clock className="w-4 h-4 text-emerald-500" /> GPS-Verified Daily Attendance
+            <Clock className="w-4 h-4 text-emerald-500" /> Daily Attendance Logs
           </h3>
         </div>
         <div className="overflow-x-auto">
@@ -60,7 +60,6 @@ export function VhwAttendance({ state }) {
                 <th className="p-4">Date</th>
                 <th className="p-4">Check-In</th>
                 <th className="p-4">Check-Out</th>
-                <th className="p-4">GPS Location</th>
                 <th className="p-4">Approval Status</th>
               </tr>
             </thead>
@@ -72,7 +71,6 @@ export function VhwAttendance({ state }) {
                   <td className="p-4 text-[var(--text-secondary)]">{formatDate(att.date)}</td>
                   <td className="p-4 font-mono text-[var(--text-primary)]">{att.checkIn || '—'}</td>
                   <td className="p-4 font-mono text-[var(--text-primary)]">{att.checkOut || '—'}</td>
-                  <td className="p-4 font-mono text-teal-600 dark:text-teal-400">{att.gps || '—'}</td>
                   <td className="p-4">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       (att.approvalStatus || att.status) === 'Approved' 
