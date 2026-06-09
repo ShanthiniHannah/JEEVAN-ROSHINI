@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Daily Household Visits
+        // 1. Daily Household Visits (visit_logs)
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // VHW worker
-            $table->string('family_id');
-            $table->foreign('family_id')->references('id')->on('families')->onDelete('cascade');
+            $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
             $table->date('visit_date');
 
             // Quick vitals captured during visit
@@ -26,9 +25,8 @@ return new class extends Migration
             $table->integer('pulse_rate')->nullable();
 
             $table->text('notes')->nullable();
-            $table->string('gps_location')->nullable(); // Optional — rural areas may not have GPS
+            $table->string('gps_location')->nullable(); // Optional
             $table->boolean('gps_verified')->default(false);
-            $table->string('visit_photo_path')->nullable();
             $table->date('follow_up_date')->nullable();
 
             // Visit submission workflow
@@ -43,8 +41,7 @@ return new class extends Migration
         // 2. Weekly Community Awareness Programs
         Schema::create('community_programs', function (Blueprint $table) {
             $table->id();
-            $table->string('village_id');
-            $table->foreign('village_id')->references('id')->on('villages')->onDelete('cascade');
+            $table->foreignId('village_id')->constrained('villages')->onDelete('cascade');
             $table->foreignId('conducted_by')->nullable()->constrained('users')->onDelete('cascade'); // VHW
             $table->string('topic'); // Menstrual Hygiene, Tobacco Prevention, Nutrition, etc.
             $table->date('program_date');
@@ -57,8 +54,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 3. Training Records (MVP — no LMS, no video/quiz engine)
-        // Videos and quiz modules will be added in Phase 3.
+        // 3. Training Records (MVP)
         Schema::create('trainings', function (Blueprint $table) {
             $table->id();
             $table->string('title');
@@ -85,18 +81,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 5. GPS Attendance Logs (GPS is optional — soft field for rural areas)
-        Schema::create('attendances', function (Blueprint $table) {
+        // 5. Daily Sessions (Attendance Tracking)
+        Schema::create('daily_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->date('date');
-            $table->time('check_in_time')->nullable();
-            $table->time('check_out_time')->nullable();
-            $table->string('gps_coords')->nullable(); // Optional GPS coordinates
-            $table->boolean('gps_verified')->default(false); // Was GPS confirmed?
-            $table->string('verification_method')->default('manual'); // manual, gps, photo
-            $table->string('check_in_photo_path')->nullable(); // Optional photo verification
-            $table->string('status')->default('Present'); // Present, Leave, Absent, Half-Day
+            $table->foreignId('vhw_id')->constrained('users')->onDelete('cascade');
+            $table->date('session_date');
+            $table->time('login_time')->nullable();
+            $table->time('logout_time')->nullable();
+            $table->string('attendance_status')->default('Present'); // Present, Absent, Leave
             $table->timestamps();
         });
 
@@ -123,7 +115,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('leave_requests');
-        Schema::dropIfExists('attendances');
+        Schema::dropIfExists('daily_sessions');
         Schema::dropIfExists('training_sessions');
         Schema::dropIfExists('trainings');
         Schema::dropIfExists('community_programs');

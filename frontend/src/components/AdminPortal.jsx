@@ -1,87 +1,90 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
+import { api } from '../services/apiClient';
 import {
-  MapPin, AlertTriangle, Heart, Bell, FileText, Activity, Database, BarChart2, Shield
+  LayoutDashboard, Globe, Users, Activity, CheckSquare,
+  FileText, BarChart2, Shield, GraduationCap
 } from 'lucide-react';
 
-// Decoupled Sub-Components
+// Sub-components
+import GovernanceDashboard from './admin/GovernanceDashboard';
+import GovernancePanel    from './admin/GovernancePanel';
+import AccessControl      from './admin/AccessControl';
+import MonitoringPanel    from './admin/MonitoringPanel';
+import ApprovalsPanel     from './admin/ApprovalsPanel';
+import ReportsPanel       from './admin/ReportsPanel';
 import AnalyticsDashboard from './admin/AnalyticsDashboard';
-import VillageMapping from './admin/VillageMapping';
-import AccessControl from './admin/AccessControl';
-import AdminRiskAlerts from './admin/AdminRiskAlerts';
-import SocialSupport from './admin/SocialSupport';
-import NotificationConsole from './admin/NotificationConsole';
-import SecurityUploads from './admin/SecurityUploads';
-import AuditLogs from './admin/AuditLogs';
-import BackupRecovery from './admin/BackupRecovery';
+import AuditLogs          from './admin/AuditLogs';
+import TrainingOverview   from './admin/TrainingOverview';
 
 const TABS = [
-  { id: 'dashboard', label: 'Analytics', icon: BarChart2 },
-  { id: 'villages', label: 'Village Mapping', icon: MapPin },
-  { id: 'users', label: 'Access Control', icon: Shield },
-  { id: 'alerts', label: 'Risk Alerts', icon: AlertTriangle },
-  { id: 'support', label: 'Social Support', icon: Heart },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'reports', label: 'Security & Uploads', icon: FileText },
-  { id: 'audit', label: 'Audit Logs', icon: Activity },
-  { id: 'backup', label: 'Backup & DR', icon: Database }
+  { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
+  { id: 'governance',  label: 'Governance',   icon: Globe },
+  { id: 'users',       label: 'Users',        icon: Users },
+  { id: 'monitoring',  label: 'Monitoring',   icon: Activity },
+  { id: 'approvals',   label: 'Approvals',    icon: CheckSquare },
+  { id: 'reports',     label: 'Reports',      icon: FileText },
+  { id: 'analytics',   label: 'Analytics',    icon: BarChart2 },
+  { id: 'training',    label: 'Training',     icon: GraduationCap },
+  { id: 'audit',       label: 'Audit Logs',   icon: Shield },
 ];
 
-export default function AdminPortal({ state, setState, env, setEnv }) {
+export default function AdminPortal({ state, setState, _env, _setEnv }) {
   const { subTab } = useParams();
   const navigate = useNavigate();
-  const activeTab = subTab || 'dashboard';
   const { isLight } = useTheme();
-  const setActiveTab = (newTab) => {
-    navigate(`/admin/${newTab}`);
-  };
 
-  const [showAddVillageModal, setShowAddVillageModal] = useState(false);
-  const [newVillageData, setNewVillageData] = useState({ name: '', block: 'Chikkamagaluru', district: 'Chikkamagaluru', population: '', waterStatus: 'Adequate', sanitationStatus: 'Good' });
-  const [newUserRole, setNewUserRole] = useState({ name: '', role: 'Village Health Worker', contact: '' });
-  const [alertFilter, setAlertFilter] = useState('all');
-  
-  // Notification States
-  const [notifForm, setNotifForm] = useState({ type: 'SMS', recipient: '', title: '', message: '' });
-  
-  // Vault Upload simulation states
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadLogs, setUploadLogs] = useState([]);
-  const [uploadErrors, setUploadErrors] = useState([]);
+  const activeTab = subTab || 'dashboard';
+  const setActiveTab = (tab) => navigate(`/admin/${tab}`);
 
-  // Database snapshot backup simulation states
-  const [isBackingUp, setIsBackingUp] = useState(false);
-  const [drLogs, setDrLogs] = useState([]);
+  // Summary KPIs fetched from API (or derived from local state as fallback)
+  const [summary, setSummary] = useState({
+    total_states: 36, total_districts: 0, total_villages: 0,
+    total_families: 0, total_individuals: 0, total_vhws: 0, total_directors: 0,
+  });
 
-  // ── DERIVED METRICS (useMemo) ──
-  const stats = useMemo(() => {
-    const totalFamilies = state.families.length;
-    const totalIndividuals = state.individuals.length;
-    const activeAlerts = state.alerts.filter(a => !a.resolved).length;
-    const malnutritionCount = state.individuals.filter(i => i.malnutritionStatus === 'moderate' || i.malnutritionStatus === 'severe').length;
-    const activeVhwCount = state.staff.filter(s => s.role === 'Village Health Worker' && s.status === 'Active').length;
-    const totalPrograms = state.programs.length;
-    
-    return {
-      totalFamilies,
-      totalIndividuals,
-      activeAlerts,
-      malnutritionCount,
-      activeVhwCount,
-      totalPrograms
+  const [pendingApprovals, setPendingApprovals] = useState(0);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const res = await api.get('/admin/summary');
+        setSummary(res.data);
+      } catch (err) {
+        console.error('Failed to fetch summary counts:', err);
+        // Fallback to local state
+        setSummary(prev => ({
+          ...prev,
+          total_states:     state.states?.length    ?? prev.total_states,
+          total_districts:  state.districts?.length ?? prev.total_districts,
+          total_villages:   state.villages?.length  ?? prev.total_villages,
+          total_families:   state.families?.length  ?? prev.total_families,
+          total_individuals: state.individuals?.length ?? prev.total_individuals,
+        }));
+      }
     };
+    fetchSummary();
+    setPendingApprovals(state.approvals?.filter(a => a.status === 'Pending').length ?? 0);
   }, [state]);
+
+  // ── Disease chart data ────────────────────────────────────────────────────
+  const chartBase = useMemo(() => ({
+    toolbar: { show: false }, background: 'transparent', fontFamily: 'Inter, sans-serif'
+  }), []);
+  const axisStyle = useMemo(() => ({
+    colors: isLight ? '#475569' : '#94a3b8', fontSize: '12px'
+  }), [isLight]);
 
   const getDiseaseCounts = () => {
     const c = { Diabetes: 0, Hypertension: 0, Tuberculosis: 0, 'Cancer Risk': 0, Asthma: 0 };
-    state.individuals.forEach(i => { i.chronicDiseases?.forEach(d => { if (c[d] !== undefined) c[d]++; }); });
+    state.individuals?.forEach(i => { i.chronicDiseases?.forEach(d => { if (c[d] !== undefined) c[d]++; }); });
     return Object.values(c);
   };
 
   const getMaternalRatio = () => {
     let normal = 0, risk = 0;
-    state.individuals.forEach(i => {
+    state.individuals?.forEach(i => {
       if (i.gender === 'Female' && i.pregnancyStatus === 'Yes') {
         i.alerts?.some(a => a.type === 'High-Risk Pregnancy') ? risk++ : normal++;
       }
@@ -90,22 +93,19 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
   };
 
   const vs = useMemo(() => {
-    const cats = state.villages.map(v => v.name.length > 10 ? v.name.slice(0, 10) + '…' : v.name);
-    const fam = state.villages.map(v => state.families.filter(f => (f.village?.name === v.name || f.villageName === v.name)).length);
-    const ind = state.villages.map(v => state.individuals.filter(i => {
-      const f = state.families.find(f => f.id === i.familyId);
+    const cats = state.villages?.map(v => v.name.length > 10 ? v.name.slice(0, 10) + '…' : v.name) ?? [];
+    const fam  = state.villages?.map(v => state.families?.filter(f => f.village?.name === v.name || f.villageName === v.name).length) ?? [];
+    const ind  = state.villages?.map(v => state.individuals?.filter(i => {
+      const f = state.families?.find(f => f.id === i.familyId);
       return f && (f.village?.name === v.name || f.villageName === v.name);
-    }).length);
+    }).length) ?? [];
     return { cats, fam, ind };
   }, [state.villages, state.families, state.individuals]);
 
   const mv = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return { months, data: [8, 14, 11, 18, 22, state.visits.length + 10] };
-  }, [state.visits.length]);
-
-  const chartBase = useMemo(() => ({ toolbar: { show: false }, background: 'transparent', fontFamily: 'Inter, sans-serif' }), []);
-  const axisStyle = useMemo(() => ({ colors: isLight ? '#475569' : '#94a3b8', fontSize: '12px' }), [isLight]);
+    return { months, data: [8, 14, 11, 18, 22, (state.visits?.length ?? 0) + 10] };
+  }, [state.visits?.length]);
 
   const diseaseOpts = useMemo(() => ({
     chart: { ...chartBase, type: 'bar' },
@@ -114,8 +114,9 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
     dataLabels: { enabled: true, style: { colors: ['#fff'], fontSize: '12px', fontWeight: 700 } },
     xaxis: { categories: ['Diabetes', 'Hypertension', 'TB', 'Cancer', 'Asthma'], labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, theme: { mode: isLight ? 'light' : 'dark' }, legend: { show: false },
-    tooltip: { theme: isLight ? 'light' : 'dark' }
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' },
+    theme: { mode: isLight ? 'light' : 'dark' }, legend: { show: false },
+    tooltip: { theme: isLight ? 'light' : 'dark' },
   }), [chartBase, axisStyle, isLight]);
 
   const maternalOpts = useMemo(() => ({
@@ -125,7 +126,7 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
     plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Pregnant', color: isLight ? '#475569' : '#94a3b8', fontSize: '12px' } } } } },
     dataLabels: { enabled: false },
     legend: { position: 'bottom', labels: { colors: isLight ? '#475569' : '#94a3b8' } },
-    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' },
   }), [chartBase, isLight]);
 
   const villageOpts = useMemo(() => ({
@@ -135,8 +136,9 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
     dataLabels: { enabled: false },
     xaxis: { categories: vs.cats.length ? vs.cats : ['V1', 'V2', 'V3'], labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, legend: { labels: { colors: isLight ? '#475569' : '#94a3b8' } },
-    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' },
+    legend: { labels: { colors: isLight ? '#475569' : '#94a3b8' } },
+    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' },
   }), [chartBase, axisStyle, vs.cats, isLight]);
 
   const visitTrendOpts = useMemo(() => ({
@@ -147,285 +149,119 @@ export default function AdminPortal({ state, setState, env, setEnv }) {
     dataLabels: { enabled: false },
     xaxis: { categories: mv.months, labels: { style: axisStyle } },
     yaxis: { labels: { style: axisStyle } },
-    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' }, theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' }
+    grid: { borderColor: isLight ? '#e2e8f0' : '#334155' },
+    theme: { mode: isLight ? 'light' : 'dark' }, tooltip: { theme: isLight ? 'light' : 'dark' },
   }), [chartBase, axisStyle, mv.months, isLight]);
-
-  // ── HANDLERS ──
-  const handleCreateVillage = (e) => {
-    e.preventDefault();
-    if (!newVillageData.name) return;
-    const v = { id: 'VLG-' + Math.floor(1000 + Math.random() * 9000), ...newVillageData };
-    setState(p => ({ 
-      ...p, 
-      villages: [...p.villages, v],
-      auditLogs: [
-        { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Central Admin', action: 'CREATE_VILLAGE', desc: `Mapped village sector ${v.name}`, ip: '192.168.1.1', time: new Date().toLocaleString(), oldValue: 'None', newValue: v.name },
-        ...p.auditLogs
-      ]
-    }));
-    setShowAddVillageModal(false);
-    setNewVillageData({ name: '', block: 'Chikkamagaluru', district: 'Chikkamagaluru', population: '', waterStatus: 'Adequate', sanitationStatus: 'Good' });
-  };
-
-  const handleCreateUser = (e) => {
-    e.preventDefault();
-    if (!newUserRole.name || !newUserRole.contact) return;
-    const user = {
-      id: 'STF-' + Math.floor(100 + Math.random() * 900),
-      status: 'Active',
-      ...newUserRole
-    };
-    setState(p => ({
-      ...p,
-      staff: [...p.staff, user],
-      auditLogs: [
-        { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Central Admin', action: 'DEPLOY_CREDENTIALS', desc: `Deployed credentials for ${user.name} (${user.role})`, ip: '192.168.1.1', time: new Date().toLocaleString(), oldValue: 'None', newValue: user.name },
-        ...p.auditLogs
-      ]
-    }));
-    setNewUserRole({ name: '', role: 'Village Health Worker', contact: '' });
-  };
-
-  const handleToggleUserStatus = (id) => {
-    setState(p => {
-      let targetUser = p.staff.find(s => s.id === id);
-      if (!targetUser) return p;
-      let nextStatus = targetUser.status === 'Active' ? 'Disabled' : 'Active';
-      return {
-        ...p,
-        staff: p.staff.map(s => s.id === id ? { ...s, status: nextStatus } : s),
-        auditLogs: [
-          { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Central Admin', action: 'TOGGLE_ACCESS_CONTROL', desc: `Changed access status of staff ${targetUser.name} to ${nextStatus}`, ip: '192.168.1.1', time: new Date().toLocaleString(), oldValue: targetUser.status, newValue: nextStatus },
-          ...p.auditLogs
-        ]
-      };
-    });
-  };
-
-  const handleAcknowledgeAlert = (id) => {
-    setState(p => {
-      const alert = p.alerts.find(a => a.id === id);
-      const patient = alert ? alert.patientName : 'Unknown patient';
-      return {
-        ...p,
-        alerts: p.alerts.map(a => a.id === id ? { ...a, resolved: true } : a),
-        auditLogs: [
-          { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Central Admin', action: 'RESOLVE_RISK_ALERT', desc: `Central Central Admin acknowledged risk alert for ${patient}`, ip: '192.168.1.1', time: new Date().toLocaleString(), oldValue: 'Active', newValue: 'Resolved' },
-          ...p.auditLogs
-        ]
-      };
-    });
-  };
-
-  const handleSubmitNotif = (e) => {
-    e.preventDefault();
-    if (!notifForm.recipient || !notifForm.message) return;
-    
-    const log = {
-      id: 'NTF-' + Math.floor(1000 + Math.random() * 9000),
-      time: new Date().toLocaleString(),
-      ...notifForm
-    };
-
-    setState(p => ({
-      ...p,
-      notifications: [log, ...p.notifications],
-      auditLogs: [
-        { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Central Admin', action: 'SEND_SYSTEM_BROADCAST', desc: `Broadcasted notification via ${log.type} to ${log.recipient}`, ip: '192.168.1.1', time: new Date().toLocaleString(), oldValue: 'None', newValue: log.title },
-        ...p.auditLogs
-      ]
-    }));
-    setNotifForm({ type: 'SMS', recipient: '', title: '', message: '' });
-  };
-
-  const handleDocUploadSimulate = async () => {
-    setIsUploading(true);
-    setUploadLogs(["Initiating secure scanner stream...", "Validating JWT signatures..."]);
-    setUploadErrors([]);
-
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    await delay(600);
-
-    setUploadLogs(prev => [...prev, "Decrypting scanner PDF bundle...", "OCR scan executing..."]);
-    await delay(500);
-
-    const failType = Math.floor(Math.random() * 4);
-    if (failType === 0) {
-      setUploadErrors(["[Error] Scan compliance error: Consent document signature not matched (biometric exception JR-VLG-0192).", "[Error] Decryption error: GPG packet corrupt (packet 82)."]);
-      setUploadLogs(prev => [...prev, "[Error] Scan stream completed with compliance violations!"]);
-    } else {
-      setUploadLogs(prev => [...prev, "[Success] OCR signatures verified.", "[Completed] Document verified and archived securely in AES vault!"]);
-    }
-    setIsUploading(false);
-  };
-
-  const handleBackupSimulate = async () => {
-    setIsBackingUp(true);
-    setDrLogs(["Connecting to Central MySQL cluster...", "Establishing transaction locks..."]);
-
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    await delay(600);
-
-    setDrLogs(prev => [...prev, "Archiving SQL schemas...", "Compressing GZip blocks..."]);
-    await delay(500);
-
-    setDrLogs(prev => [...prev, "[Success] Snapshot successfully compiled.", "[Completed] Snapshot backup uploaded securely to central AWS S3 vault!"]);
-    setIsBackingUp(false);
-  };
-
-  const filteredAlerts = alertFilter === 'all' ? state.alerts
-    : alertFilter === 'critical' ? state.alerts.filter(a => a.severity === 'critical')
-    : alertFilter === 'unresolved' ? state.alerts.filter(a => !a.resolved)
-    : state.alerts.filter(a => a.resolved);
-
-  const filteredAuditLogs = state.auditLogs || [];
-  const supportRecords = state.supportRecords || [];
-  const backupSchedule = state.backupSchedule || [
-    { type: 'Full DB Schema Backup', interval: 'Every 24 Hours', target: 'Ayathana AWS Core S3 Bucket', status: 'Active' },
-    { type: 'Security Audit Log Stream', interval: 'Real-time Streaming', target: 'Central Auditor Elastic Node', status: 'Streaming' }
-  ];
-  const drLogsList = state.drLogs || [];
-  const notifLogs = state.notifications || [];
 
   return (
     <div className="space-y-6">
-      
-      {/* Central Admin Control Header */}
-      <div 
-        className={`flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border border-[var(--border-color)] p-6 rounded-2xl relative overflow-hidden text-white bg-gradient-to-r ${
-          isLight ? 'from-brand-600 to-brand-700' : 'from-slate-900 to-slate-800'
-        }`}
+
+      {/* ── Header ── */}
+      <div
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 p-6 rounded-2xl relative overflow-hidden text-white"
+        style={{ background: 'linear-gradient(135deg, #0057B8 0%, #1B2B5B 100%)' }}
       >
-        <div className="relative z-10 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded border border-teal-500/20 backdrop-blur-md">
-            Central System Auditor
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none' }} />
+        <div className="relative z-10 space-y-1">
+          <span className="text-xs font-bold uppercase tracking-wider text-cyan-200 bg-white/10 px-2.5 py-1 rounded border border-white/15 backdrop-blur-md">
+            Ayathana Trust · Super Admin
           </span>
-          <h2 className="text-2xl font-black mt-1 drop-shadow-md text-white">Central Admin Control Panel</h2>
-          <p className="text-xs leading-relaxed font-semibold text-slate-100 opacity-90">Manage rural sectors · Deploy authorization credentials · Enforce compliance metrics</p>
+          <h2 className="text-2xl font-black mt-1 text-white drop-shadow">Governance & Monitoring Dashboard</h2>
+          <p className="text-xs font-semibold text-white/70">Governance · Monitoring · Analytics · Approvals · Expansion Management</p>
         </div>
-        
-        <div className="flex gap-2 text-xs relative z-10 w-full lg:w-auto justify-end">
-          <button 
-            onClick={() => setEnv(env === 'Production' ? 'Staging' : 'Production')}
-            className={`px-4 py-2 rounded-xl border font-black transition cursor-pointer text-xs uppercase tracking-wider ${
-              env === 'Production' 
-                ? 'bg-brand-650 border-brand-500 text-white shadow' 
-                : 'bg-white/10 dark:bg-slate-950/60 border-white/15 dark:border-slate-800 text-slate-200'
-            }`}
-          >
-            ENV: {env}
-          </button>
+        <div className="relative z-10 flex gap-2 text-xs">
+          {pendingApprovals > 0 && (
+            <button
+              onClick={() => setActiveTab('approvals')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border font-black bg-amber-500/20 border-amber-400/30 text-amber-200 animate-pulse"
+            >
+              <CheckSquare className="w-3.5 h-3.5" />
+              {pendingApprovals} Pending
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Navigation Tab Bar */}
-      <div className="flex overflow-x-auto border-b border-[var(--border-color)] bg-[var(--bg-card)] gap-1 scrollbar-hide py-1">
+      {/* ── Tab Bar ── */}
+      <div className="flex overflow-x-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl gap-1 scrollbar-hide p-1.5 shadow-sm">
         {TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
-            <button 
-              key={tab.id} 
+            <button
+              key={tab.id}
+              id={`admin-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 font-black text-xs uppercase tracking-wider border-b-2 whitespace-nowrap transition-all duration-250 cursor-pointer ${
-                isActive 
-                  ? 'border-brand-500 text-brand-500 font-semibold dark:border-brand-400 dark:text-brand-400' 
-                  : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-color)]'
+              className={`flex items-center gap-2 px-4 py-2 font-bold text-xs uppercase tracking-wide whitespace-nowrap transition-all duration-200 cursor-pointer rounded-lg ${
+                isActive
+                  ? 'bg-[#0057B8] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-inner)]'
               }`}
             >
-              <Icon className="w-4 h-4 shrink-0" /> {tab.label}
+              <Icon className="w-3.5 h-3.5 shrink-0" />
+              {tab.label}
+              {tab.id === 'approvals' && pendingApprovals > 0 && (
+                <span className="ml-1 bg-amber-500 text-white text-[10px] font-black rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                  {pendingApprovals}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* Modular Tab Content */}
+      {/* ── Tab Content ── */}
       <div className="relative z-10">
+
         {activeTab === 'dashboard' && (
-          <AnalyticsDashboard 
-            stats={stats}
-            diseaseOpts={diseaseOpts}
-            getDiseaseCounts={getDiseaseCounts}
-            maternalOpts={maternalOpts}
-            getMaternalRatio={getMaternalRatio}
-            villageOpts={villageOpts}
-            vs={vs}
-            visitTrendOpts={visitTrendOpts}
-            mv={mv}
-          />
+          <GovernanceDashboard summary={summary} state={state} />
         )}
 
-        {activeTab === 'villages' && (
-          <VillageMapping 
-            state={state}
-            setShowAddVillageModal={setShowAddVillageModal}
-            showAddVillageModal={showAddVillageModal}
-            newVillageData={newVillageData}
-            setNewVillageData={setNewVillageData}
-            handleCreateVillage={handleCreateVillage}
-          />
+        {activeTab === 'governance' && (
+          <GovernancePanel state={state} setState={setState} />
         )}
 
         {activeTab === 'users' && (
-          <AccessControl 
+          <AccessControl state={state} setState={setState} />
+        )}
+
+        {activeTab === 'monitoring' && (
+          <MonitoringPanel state={state} />
+        )}
+
+        {activeTab === 'approvals' && (
+          <ApprovalsPanel
             state={state}
-            newUserRole={newUserRole}
-            setNewUserRole={setNewUserRole}
-            handleCreateUser={handleCreateUser}
-            handleToggleUserStatus={handleToggleUserStatus}
-          />
-        )}
-
-        {activeTab === 'alerts' && (
-          <AdminRiskAlerts 
-            alertFilter={alertFilter}
-            setAlertFilter={setAlertFilter}
-            filteredAlerts={filteredAlerts}
-            handleAcknowledgeAlert={handleAcknowledgeAlert}
-          />
-        )}
-
-        {activeTab === 'support' && (
-          <SocialSupport 
-            supportRecords={supportRecords}
-          />
-        )}
-
-        {activeTab === 'notifications' && (
-          <NotificationConsole 
-            notifForm={notifForm}
-            setNotifForm={setNotifForm}
-            notifLogs={notifLogs}
-            handleSubmitNotif={handleSubmitNotif}
+            setState={setState}
+            onApprovalChange={count => setPendingApprovals(count)}
           />
         )}
 
         {activeTab === 'reports' && (
-          <SecurityUploads 
-            isUploading={isUploading}
-            uploadLogs={uploadLogs}
-            uploadErrors={uploadErrors}
-            handleDocUploadSimulate={handleDocUploadSimulate}
-            setUploadErrors={setUploadErrors}
+          <ReportsPanel state={state} />
+        )}
+
+        {activeTab === 'analytics' && (
+          <AnalyticsDashboard
+            isLight={isLight}
+            stats={{
+              totalVillages:    summary.total_villages,
+              totalFamilies:    summary.total_families,
+              totalIndividuals: summary.total_individuals,
+              activeAlerts:     state.alerts?.filter(a => !a.resolved).length ?? 0,
+            }}
           />
+        )}
+
+        {activeTab === 'training' && (
+          <TrainingOverview state={state} />
         )}
 
         {activeTab === 'audit' && (
-          <AuditLogs 
-            filteredAuditLogs={filteredAuditLogs}
-          />
+          <AuditLogs filteredAuditLogs={state.auditLogs || []} />
         )}
 
-        {activeTab === 'backup' && (
-          <BackupRecovery 
-            backupSchedule={backupSchedule}
-            drLogs={drLogs.length ? drLogs : drLogsList}
-            isBackingUp={isBackingUp}
-            handleBackupSimulate={handleBackupSimulate}
-          />
-        )}
       </div>
-
     </div>
   );
 }

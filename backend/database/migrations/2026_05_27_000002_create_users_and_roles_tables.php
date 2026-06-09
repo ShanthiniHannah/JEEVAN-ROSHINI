@@ -28,7 +28,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('designation'); // Project Director, Coordinator, Village Health Worker
-            $table->json('assigned_villages')->nullable(); // Array of village IDs assigned
             $table->string('contact_number')->nullable();
             $table->timestamps();
         });

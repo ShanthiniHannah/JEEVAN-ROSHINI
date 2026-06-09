@@ -10,7 +10,7 @@ import {
 // Decoupled Sub-Components
 import VhwDashboard from './vhw/VhwDashboard';
 import VillageForm from './vhw/VillageForm';
-import FamilyForm from './vhw/FamilyForm';
+import FamilyRegistration from './vhw/FamilyRegistration';
 import IndividualForm from './vhw/IndividualForm';
 import VisitForm from './vhw/VisitForm';
 import EchrViewer from './vhw/EchrViewer';
@@ -103,34 +103,28 @@ export default function VhwPortal({
   });
 
   // Attendance states
-  const [attendanceStatus, setAttendanceStatus] = useState('checked-out');
-  const [attendanceTime, setAttendanceTime] = useState(null);
   const [gpsCoords, setGpsCoords] = useState(null);
   const [leaveForm, setLeaveForm] = useState({ reason: '', days: '1', startDate: '' });
 
-  // Quiz States
-  const [quizScore, setQuizScore] = useState(null);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const quizQuestions = [
-    {
-      id: 1,
-      q: "What is a primary danger sign in a pregnant mother requiring immediate hospital referral?",
-      options: ["Mild morning sickness", "Severe headache and blurred vision", "Craving sour foods", "Increased appetite"],
-      answer: 1
-    },
-    {
-      id: 2,
-      q: "How often should an active diabetes patient be tracked for follow-up visits?",
-      options: ["Once a year", "Every six months", "Monthly", "Only when they feel sick"],
-      answer: 2
-    },
-    {
-      id: 3,
-      q: "Which age group is critical for severe acute malnutrition (SAM) tracking?",
-      options: ["Under 5 years", "Adolescents", "Adults (20-45)", "Elderly over 65"],
-      answer: 0
-    }
-  ];
+  // Fetch today's attendance session from state
+  const todaySession = useMemo(() => {
+    if (!state.attendance) return null;
+    const logs = Array.isArray(state.attendance) 
+      ? state.attendance 
+      : (state.attendance.data || []);
+    if (logs.length === 0) return null;
+    const todayStr = new Date().toISOString().split('T')[0];
+    return logs.find(s => {
+      if (!s.session_date) return false;
+      const sDate = s.session_date.includes('T') 
+        ? s.session_date.split('T')[0] 
+        : s.session_date;
+      return sDate === todayStr;
+    });
+  }, [state.attendance]);
+
+  const loginTime = todaySession ? todaySession.login_time : null;
+  const logoutTime = todaySession ? todaySession.logout_time : null;
 
   // Sync simulation sandbox states
   const [syncLogs, setSyncLogs] = useState([]);
@@ -150,15 +144,29 @@ export default function VhwPortal({
     setTimeout(() => setErrorMsg(''), 5000);
   };
 
-  // Generate GPS coordinates
-  const simulateGps = () => {
-    const lat = (12.9716 + (Math.random() - 0.5) * 0.05).toFixed(4);
-    const lng = (77.5946 + (Math.random() - 0.5) * 0.05).toFixed(4);
-    setGpsCoords({ lat, lng });
+  // Fetch real GPS coordinates
+  const fetchRealGps = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setGpsCoords({
+            lat: position.coords.latitude.toFixed(4),
+            lng: position.coords.longitude.toFixed(4)
+          });
+        },
+        (error) => {
+          console.warn("GPS fetch error:", error.message);
+          notifyError("GPS disabled or denied. Check browser settings.");
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    } else {
+      notifyError("Geolocation is not supported by this browser.");
+    }
   };
 
   useEffect(() => {
-    simulateGps();
+    fetchRealGps();
   }, [activeSubTab]);
 
   // Form Handlers
@@ -397,46 +405,7 @@ export default function VhwPortal({
     setProgramForm({ villageId: '', topic: 'Menstrual Hygiene', participants: '', outcome: '' });
   };
 
-  const handleCheckIn = async () => {
-    const time = new Date().toLocaleTimeString();
-    if (isOnline) {
-      try {
-        const response = await api.post('/attendance/check-in', {
-          gps_coords: gpsCoords ? `${gpsCoords.lat}, ${gpsCoords.lng}` : '12.9716, 77.5946'
-        });
-        if (response.data.success) {
-          setAttendanceStatus('checked-in');
-          setAttendanceTime(time);
-          notify("Checked-in successfully via authenticated GPS!");
-        }
-      } catch (_err) {
-        notifyError("Failed to check-in. Ensure GPS services are enabled.");
-      }
-    } else {
-      setAttendanceStatus('checked-in');
-      setAttendanceTime(time);
-      notify("Offline Mode: Checked-in locally. Will sync online.");
-    }
-  };
-
-  const handleCheckOut = async () => {
-    if (isOnline) {
-      try {
-        const response = await api.post('/attendance/check-out', {
-          gps_coords: gpsCoords ? `${gpsCoords.lat}, ${gpsCoords.lng}` : '12.9716, 77.5946'
-        });
-        if (response.data.success) {
-          setAttendanceStatus('checked-out');
-          notify("Shift completed and Checked-out!");
-        }
-      } catch (_err) {
-        notifyError("Failed to check-out.");
-      }
-    } else {
-      setAttendanceStatus('checked-out');
-      notify("Shift ended locally.");
-    }
-  };
+  // Check-in and check-out are now automated. Manual triggers removed.
 
   const handleApplyLeave = async (e) => {
     e.preventDefault();
@@ -468,18 +437,6 @@ export default function VhwPortal({
           : [...prev.chronicDiseases, disease]
       };
     });
-  };
-
-  const handleQuizSubmit = (e) => {
-    e.preventDefault();
-    let score = 0;
-    quizQuestions.forEach((q) => {
-      if (selectedAnswers[q.id] === q.answer) {
-        score++;
-      }
-    });
-    setQuizScore(score);
-    notify(`Quiz completed! You scored ${score}/${quizQuestions.length}`);
   };
 
   const toggleRevealPii = async (patientId, _patientName) => {
@@ -542,7 +499,7 @@ export default function VhwPortal({
   const liveRiskAlerts = evaluateRiskAlerts(individualForm);
 
   return (
-    <div className="flex flex-col border border-[var(--border-color)] rounded-[30px] overflow-x-hidden shadow-2xl w-full max-w-[390px] mx-auto min-h-[720px] relative text-[var(--text-primary)] bg-[var(--bg-card)] select-none z-10">
+    <div className="flex flex-col rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)] dark:shadow-none dark:border dark:border-[var(--border-color)] w-full max-w-2xl mx-auto min-h-[720px] relative text-[var(--text-primary)] bg-[var(--bg-card)] z-10">
       
       {/* Subtle Heart Watermark Background */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
@@ -551,49 +508,42 @@ export default function VhwPortal({
         <Heart className="w-48 h-48 text-rose-500/5 fill-rose-500/[0.01] transform -rotate-12 animate-pulse" />
       </div>
       
-      {/* Mobile Top Status Bar */}
-      <div className="bg-[var(--bg-inner)] px-4 py-2 flex justify-between items-center text-xs text-[var(--text-secondary)] border-b border-[var(--border-color)] relative z-25">
-        <span className="font-bold tracking-tight">11:30 AM</span>
+      {/* Unified Portal Header */}
+      <div className="bg-[var(--bg-card)] border-b border-[var(--border-color)] px-5 py-4 flex justify-between items-center relative z-25">
+        <div>
+          <h2 className="text-sm font-black text-[var(--text-primary)] leading-tight flex items-center gap-1.5">
+            <Heart className="w-4 h-4 text-rose-500 animate-pulse fill-rose-500" />
+            Jeevan Roshini Field App
+          </h2>
+          <p className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider mt-0.5">District Field Client · {currentVhwName}</p>
+        </div>
         
         {/* Network & Debugger Buttons */}
         <div className="flex items-center gap-2">
           <button 
+            type="button"
             onClick={() => setIsOnline(!isOnline)} 
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-all duration-300 font-extrabold text-xs cursor-pointer border ${
-              isOnline ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-450 border-rose-500/20'
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all duration-300 font-extrabold text-xs cursor-pointer border ${
+              isOnline 
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' 
+                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
             }`}
           >
-            {isOnline ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
-            {isOnline ? 'ONLINE' : 'OFFLINE'}
+            {isOnline ? <Wifi className="w-3.5 h-3.5 shrink-0" /> : <WifiOff className="w-3.5 h-3.5 shrink-0" />}
+            <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
           </button>
           
           <button 
+            type="button"
             onClick={() => setActiveSubTab('sync_sandbox')}
-            className={`px-2 py-0.5 rounded-full border text-xs font-black uppercase transition-all tracking-wider cursor-pointer ${
+            className={`px-2.5 py-1 rounded-full border text-[10px] font-black uppercase transition-all tracking-wider cursor-pointer ${
               activeSubTab === 'sync_sandbox' 
-                ? 'bg-brand-600 border-brand-500 text-white shadow' 
-                : 'bg-[var(--bg-card)] border-[var(--border-color)] text-brand-600 dark:text-brand-400 hover:bg-[var(--bg-inner)]'
+                ? 'bg-brand-500 border-brand-500 text-white shadow-sm' 
+                : 'bg-[var(--bg-inner)] border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--border-color)]/20'
             }`}
           >
             Sandbox
           </button>
-        </div>
-      </div>
-
-      {/* Main App Bar */}
-      <div 
-        className="p-4 shadow-md flex justify-between items-center relative overflow-hidden border-b border-[var(--border-color)] z-10 bg-gradient-to-r from-brand-600 to-brand-700"
-      >
-        <div className="relative z-10">
-          <h2 className="text-sm font-black text-white leading-tight flex items-center gap-1.5 drop-shadow-sm">
-            <Heart className="w-3.5 h-3.5 text-rose-400 animate-pulse fill-rose-400" />
-            Jeevan Roshini Mobile
-          </h2>
-          <p className="text-xs text-sky-100 font-bold uppercase tracking-wider drop-shadow-sm mt-0.5">District Field Client</p>
-        </div>
-        <div className="text-right relative z-10">
-          <p className="text-xs text-white font-extrabold drop-shadow">{currentVhwName}</p>
-          <span className="text-xs font-black bg-indigo-950/70 text-indigo-300 px-1.5 py-0.2 rounded border border-indigo-500/10">ID: {currentVhwId}</span>
         </div>
       </div>
 
@@ -662,13 +612,14 @@ export default function VhwPortal({
         )}
 
         {activeSubTab === 'family' && (
-          <FamilyForm 
-            familyStep={familyStep}
-            setFamilyStep={setFamilyStep}
-            familyForm={familyForm}
-            setFamilyForm={setFamilyForm}
+          <FamilyRegistration 
             visibleVillages={visibleVillages}
-            handleAddFamily={handleAddFamily}
+            isOnline={isOnline}
+            setOfflineQueue={setOfflineQueue}
+            setState={setState}
+            notify={notify}
+            notifyError={notifyError}
+            setActiveSubTab={setActiveSubTab}
           />
         )}
 
@@ -716,11 +667,8 @@ export default function VhwPortal({
 
         {activeSubTab === 'attendance' && (
           <AttendanceTracker 
-            attendanceStatus={attendanceStatus}
-            handleCheckIn={handleCheckIn}
-            attendanceTime={attendanceTime}
-            gpsCoords={gpsCoords}
-            handleCheckOut={handleCheckOut}
+            loginTime={loginTime}
+            logoutTime={logoutTime}
             leaveForm={leaveForm}
             setLeaveForm={setLeaveForm}
             handleApplyLeave={handleApplyLeave}
@@ -728,14 +676,7 @@ export default function VhwPortal({
         )}
 
         {activeSubTab === 'training' && (
-          <TrainingPortal 
-            quizScore={quizScore}
-            setQuizScore={setQuizScore}
-            selectedAnswers={selectedAnswers}
-            setSelectedAnswers={setSelectedAnswers}
-            quizQuestions={quizQuestions}
-            handleQuizSubmit={handleQuizSubmit}
-          />
+          <TrainingPortal />
         )}
 
         {activeSubTab === 'sync_sandbox' && (
@@ -782,7 +723,7 @@ export default function VhwPortal({
           className={`flex flex-col items-center gap-1 transition cursor-pointer ${activeSubTab === 'attendance' ? 'text-brand-500 font-black' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
         >
           <Clock className="w-4.5 h-4.5" />
-          <span className="text-xs">HR/GPS</span>
+          <span className="text-xs">Attendance</span>
         </button>
 
         <button 

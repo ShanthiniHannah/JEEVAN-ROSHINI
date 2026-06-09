@@ -219,7 +219,13 @@ class DashboardDataController extends Controller
         ]);
 
         $data = $request->all();
-        $data['user_id'] = $request->user()->id;
+        if (!empty($data['family_id']) && !is_numeric($data['family_id'])) {
+            $family = \App\Models\Family::where('family_code', $data['family_id'])->first();
+            if ($family) {
+                $data['family_id'] = $family->id;
+            }
+        }
+        $data['user_id'] = $request->user()?->id ?? 3;
         $data['visit_date'] = now()->toDateString();
 
         $visit = $this->visitService->logVisit($data);

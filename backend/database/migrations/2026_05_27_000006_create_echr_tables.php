@@ -4,21 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * ECHR Split Tables Migration
- *
- * This migration implements the industry-standard practice of normalizing
- * Electronic Community Health Records (ECHR) into separate, focused tables.
- *
- * Hierarchy:
- *   individual → diagnoses
- *   individual → medications
- *   individual → lab_reports
- *   individual → followups  (linked to visits)
- *   individual → referrals  (with approval workflow)
- *
- * All tables use softDeletes — health records must NEVER be permanently deleted.
- */
 return new class extends Migration
 {
     /**
@@ -29,8 +14,7 @@ return new class extends Migration
         // 1. Diagnoses
         Schema::create('diagnoses', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->unsignedBigInteger('visit_id')->nullable(); // Linked to a specific visit
             $table->foreign('visit_id')->references('id')->on('visits')->onDelete('set null');
             $table->string('icd_code')->nullable(); // ICD-10 code e.g. I10 = Hypertension, E11 = Type 2 Diabetes
@@ -48,8 +32,7 @@ return new class extends Migration
         // 2. Medications / Prescriptions
         Schema::create('medications', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->unsignedBigInteger('diagnosis_id')->nullable(); // Linked diagnosis
             $table->foreign('diagnosis_id')->references('id')->on('diagnoses')->onDelete('set null');
             $table->string('drug_name');
@@ -68,8 +51,7 @@ return new class extends Migration
         // 3. Lab Reports
         Schema::create('lab_reports', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->unsignedBigInteger('visit_id')->nullable();
             $table->foreign('visit_id')->references('id')->on('visits')->onDelete('set null');
             $table->string('test_name'); // Haemoglobin, Blood Sugar (Fasting), Urine Routine, etc.
@@ -91,8 +73,7 @@ return new class extends Migration
         // 4. Follow-ups
         Schema::create('followups', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->unsignedBigInteger('visit_id')->nullable(); // Visit that created this follow-up
             $table->foreign('visit_id')->references('id')->on('visits')->onDelete('set null');
             $table->unsignedBigInteger('diagnosis_id')->nullable(); // Optional — for specific condition follow-up
@@ -111,8 +92,7 @@ return new class extends Migration
         // 5. Referrals (with full approval workflow)
         Schema::create('referrals', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->unsignedBigInteger('visit_id')->nullable();
             $table->foreign('visit_id')->references('id')->on('visits')->onDelete('set null');
             $table->unsignedBigInteger('diagnosis_id')->nullable();

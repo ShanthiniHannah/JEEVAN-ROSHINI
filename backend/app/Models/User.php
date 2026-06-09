@@ -22,7 +22,22 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
+        'mobile',
+        'employee_id',
+        'must_change_password',
+        'district_id',
+        'created_by',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'must_change_password' => 'boolean',
+    ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -43,11 +58,29 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the attendance logs for the staff member.
+     * Get the district this user belongs to.
      */
-    public function attendances()
+    public function district()
     {
-        return $this->hasMany(Attendance::class);
+        return $this->belongsTo(District::class);
+    }
+
+    /**
+     * Get the villages assigned to this user.
+     */
+    public function assignedVillages()
+    {
+        return $this->belongsToMany(Village::class, 'village_assignments', 'user_id', 'village_id')
+                    ->withPivot('status', 'assigned_date')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the daily session records for this user.
+     */
+    public function dailySessions()
+    {
+        return $this->hasMany(DailySession::class, 'vhw_id');
     }
 
     /**

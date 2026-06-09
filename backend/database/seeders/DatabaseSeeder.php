@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            StatesSeeder::class,             // All 28 states + 8 UTs (must run first)
             RolesAndPermissionsSeeder::class,
             DemoDataSeeder::class,
         ]);

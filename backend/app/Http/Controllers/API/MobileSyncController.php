@@ -42,8 +42,9 @@ class MobileSyncController extends Controller
 
                 switch ($type) {
                     case 'village':
+                        $villageCode = $data['village_code'] ?? $data['id'] ?? ('VLG-' . mt_rand(1000, 9999));
                         Village::updateOrCreate(
-                            ['id' => $data['id']],
+                            ['village_code' => $villageCode],
                             [
                                 'block_id' => $data['block_id'] ?? 1, // Fallback to default block
                                 'name' => $data['name'],
@@ -57,49 +58,73 @@ class MobileSyncController extends Controller
                         break;
 
                     case 'family':
+                        $familyCode = $data['family_code'] ?? $data['id'] ?? ('FAM-' . mt_rand(1000, 9999));
+                        
+                        // Resolve villageId string code to DB integer ID
+                        $villageId = $data['villageId'] ?? $data['village_id'] ?? null;
+                        if (!empty($villageId) && !is_numeric($villageId)) {
+                            $village = Village::where('village_code', $villageId)->first();
+                            if ($village) {
+                                $villageId = $village->id;
+                            }
+                        }
+
                         Family::updateOrCreate(
-                            ['id' => $data['id']],
+                            ['family_code' => $familyCode],
                             [
-                                'village_id' => $data['villageId'],
-                                'house_no' => $data['houseNo'],
-                                'economic_status' => $data['economicStatus'] ?? 'BPL',
+                                'village_id' => $villageId,
+                                'house_no' => $data['houseNo'] ?? $data['house_no'],
+                                'economic_status' => $data['economicStatus'] ?? $data['economic_status'] ?? 'BPL',
                                 'occupation' => $data['occupation'] ?? null,
-                                'drinking_water_source' => $data['drinkingWater'] ?? 'Tap',
-                                'toilet_availability' => $data['toilet'] ?? 'Yes',
+                                'drinking_water_source' => $data['drinkingWater'] ?? $data['drinking_water_source'] ?? 'Tap',
+                                'toilet_availability' => $data['toilet'] ?? $data['toilet_availability'] ?? 'Yes',
                             ]
                         );
                         $processedCount++;
                         break;
 
                     case 'individual':
+                        $individualCode = $data['individual_code'] ?? $data['id'] ?? ('JR-' . mt_rand(1000, 9999));
+
+                        // Resolve familyId string code to DB integer ID
+                        $familyId = $data['familyId'] ?? $data['family_id'] ?? null;
+                        if (!empty($familyId) && !is_numeric($familyId)) {
+                            $family = Family::where('family_code', $familyId)->first();
+                            if ($family) {
+                                $familyId = $family->id;
+                            }
+                        }
+
                         $individual = Individual::updateOrCreate(
-                            ['id' => $data['id']],
+                            ['individual_code' => $individualCode],
                             [
-                                'family_id' => $data['familyId'],
+                                'family_id' => $familyId,
                                 'name' => $data['name'],
                                 'age' => $data['age'],
                                 'gender' => $data['gender'],
-                                'mobile_number' => $data['phone'] ?? null,
-                                'blood_group' => $data['bloodGroup'] ?? null,
-                                'pregnancy_status' => $data['pregnancyStatus'] ?? 'No',
-                                'vaccination_status' => $data['vaccinationStatus'] ?? 'None',
-                                'disability_status' => $data['disabilityStatus'] ?? 'No',
-                                'malnutrition_status' => $data['malnutritionStatus'] ?? 'none',
-                                'living_alone' => $data['livingAlone'] ?? 'no',
+                                'mobile_number' => $data['phone'] ?? $data['mobile_number'] ?? null,
+                                'blood_group' => $data['bloodGroup'] ?? $data['blood_group'] ?? null,
+                                'pregnancy_status' => $data['pregnancyStatus'] ?? $data['pregnancy_status'] ?? 'No',
+                                'vaccination_status' => $data['vaccinationStatus'] ?? $data['vaccination_status'] ?? 'None',
+                                'disability_status' => $data['disabilityStatus'] ?? $data['disability_status'] ?? 'No',
+                                'malnutrition_status' => $data['malnutritionStatus'] ?? $data['malnutrition_status'] ?? 'none',
+                                'living_alone' => $data['livingAlone'] ?? $data['living_alone'] ?? 'no',
                             ]
                         );
 
-                        // Save a baseline health record
-                        $hasDiseases = ! empty($data['chronicDiseases']);
-                        $healthRecord = HealthRecord::create([
+                        // Save a baseline health record safely by assigning non-fillable required fields directly
+                        $healthRecord = new HealthRecord([
                             'individual_id' => $individual->id,
                             'height_cm' => null,
                             'weight_kg' => null,
                             'bp_systolic' => null,
                             'bp_diastolic' => null,
                             'chronic_diseases' => $data['chronicDiseases'] ?? [],
-                            'diagnosis_notes' => 'Baseline profile imported via PWA sync.',
                         ]);
+                        $healthRecord->general_notes = 'Baseline profile imported via PWA sync.';
+                        $healthRecord->recorded_on = now()->toDateString();
+                        $healthRecord->recorded_by = $request->user()->id ?? 3;
+                        $healthRecord->save();
 
                         // Server-side Clinical Risk Engine Validation
                         $alerts = $this->evaluateIndividualRisk($individual, $data['chronicDiseases'] ?? []);
@@ -123,28 +148,55 @@ class MobileSyncController extends Controller
                         break;
 
                     case 'visit':
+                        // Resolve familyId string code to DB integer ID
+                        $familyId = $data['familyId'] ?? $data['family_id'] ?? null;
+                        if (!empty($familyId) && !is_numeric($familyId)) {
+                            $family = Family::where('family_code', $familyId)->first();
+                            if ($family) {
+                                $familyId = $family->id;
+                            }
+                        }
+
                         Visit::create([
-                            'user_id' => $request->user()->id ?? 3, // VHW ID or default seeder
-                            'family_id' => $data['familyId'],
+                            'user_id' => $request->user()?->id ?? 3, // VHW ID or default seeder
+                            'family_id' => $familyId,
                             'visit_date' => now(),
-                            'temperature_f' => $data['tempDeg'] ?? null,
-                            'bp_systolic' => $data['bpSys'] ?? null,
-                            'bp_diastolic' => $data['bpDia'] ?? null,
+                            'temperature_f' => $data['tempDeg'] ?? $data['temperature_f'] ?? null,
+                            'bp_systolic' => $data['bpSys'] ?? $data['bp_systolic'] ?? null,
+                            'bp_diastolic' => $data['bpDia'] ?? $data['bp_diastolic'] ?? null,
                             'notes' => $data['notes'],
-                            'gps_location' => $data['gps'] ?? null,
-                            'follow_up_date' => $data['followUpDate'] ?? null,
+                            'gps_location' => $data['gps'] ?? $data['gps_location'] ?? null,
+                            'follow_up_date' => $data['followUpDate'] ?? $data['follow_up_date'] ?? null,
                         ]);
                         $processedCount++;
                         break;
 
                     case 'program':
+                        // Resolve villageId string code to DB integer ID
+                        $villageId = $data['villageId'] ?? $data['village_id'] ?? null;
+                        if (!empty($villageId) && !is_numeric($villageId)) {
+                            $village = Village::where('village_code', $villageId)->first();
+                            if ($village) {
+                                $villageId = $village->id;
+                            }
+                        }
+
                         CommunityProgram::create([
-                            'village_id' => $data['villageId'],
+                            'village_id' => $villageId,
                             'topic' => $data['topic'],
                             'program_date' => now(),
-                            'participants_count' => $data['participants'] ?? 0,
-                            'outcome_summary' => $data['outcome'] ?? null,
+                            'participants_count' => $data['participants'] ?? $data['participants_count'] ?? 0,
+                            'outcome_summary' => $data['outcome'] ?? $data['outcome_summary'] ?? null,
                         ]);
+                        $processedCount++;
+                        break;
+
+                    case 'family_registration':
+                        $controller = app()->make(\App\Http\Controllers\API\FamilyRegisterController::class);
+                        $subRequest = new \Illuminate\Http\Request();
+                        $subRequest->replace($data);
+                        $subRequest->setUserResolver(fn() => $request->user());
+                        $controller->register($subRequest);
                         $processedCount++;
                         break;
                 }

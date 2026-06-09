@@ -54,7 +54,29 @@ export function AuthProvider({ children }) {
 
       return { success: true, user };
     } catch (error) {
+      if (error.response?.data?.requires_password_change) {
+        return { success: false, requires_password_change: true, message: error.response.data.message };
+      }
       const msg = error.response?.data?.message || 'Login failed. Please verify credentials.';
+      return { success: false, message: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changePassword = async (email, current_password, new_password) => {
+    setLoading(true);
+    try {
+      const response = await api.post('/change-password', { email, current_password, new_password });
+      const { token, user } = response.data;
+
+      localStorage.setItem('jeevan_roshini_token', token);
+      localStorage.setItem('jeevan_roshini_user', JSON.stringify(user));
+      setCurrentUser(user);
+
+      return { success: true, user };
+    } catch (error) {
+      const msg = error.response?.data?.message || 'Failed to change password. Ensure current password is correct.';
       return { success: false, message: msg };
     } finally {
       setLoading(false);
@@ -76,7 +98,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout, loading }}>
+    <AuthContext.Provider value={{ currentUser, login, logout, changePassword, loading }}>
       {children}
     </AuthContext.Provider>
   );

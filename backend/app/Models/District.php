@@ -17,7 +17,7 @@ class District extends Model
     protected $fillable = [
         'organization_id',
         'name',
-        'state',
+        'state_id',
     ];
 
     /**
@@ -36,6 +36,14 @@ class District extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    /**
+     * Get the state this district belongs to.
+     */
+    public function state()
+    {
+        return $this->belongsTo(State::class);
     }
 
     /**

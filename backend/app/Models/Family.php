@@ -9,12 +9,7 @@ class Family extends Model
 {
     use SoftDeletes;
 
-    protected $keyType = 'string';
-
-    public $incrementing = false;
-
     protected $fillable = [
-        'id',
         'village_id',
         'house_no',
         'address',
@@ -24,6 +19,17 @@ class Family extends Model
         'toilet_availability',
         'insurance_details',
         'status',
+        'family_code',
+        'state_id',
+        'district_id',
+        'block_id',
+        'water_source',
+        'rooms',
+        'electricity',
+        'cooking_source',
+        'registration_date',
+        'vhw_id',
+        'family_photo_path',
     ];
 
     /**

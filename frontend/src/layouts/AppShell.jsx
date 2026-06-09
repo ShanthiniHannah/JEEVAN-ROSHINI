@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../context/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import InteractiveBackground from '../components/InteractiveBackground';
-import LogoShowcase from '../components/LogoShowcase';
 import { OfflineStatusBanner } from '../components/ui/OfflineStatusBanner';
+import UserAvatar from '../components/ui/UserAvatar';
+import { api } from '../services/apiClient';
 import {
-  Sparkles, Globe, Sun, Moon, Paintbrush, Wifi, WifiOff, RefreshCw, LogOut
+  Sparkles, Globe, Sun, Moon, Wifi, WifiOff, RefreshCw, LogOut, Bell
 } from 'lucide-react';
-import logoDark from '../assets/logo_dark.png';
-import logoLight from '../assets/logo_light.png';
+import logoNew from '../assets/logo_new.jpg';
 
 /**
  * AppShell — Authenticated portal shell.
@@ -35,6 +36,7 @@ export function AppShell({
 }) {
   const isLight = theme === 'light';
   const { locale, setLocale } = useTranslation();
+  const navigate = useNavigate();
 
   const LOCALES = [
     { value: 'en', label: 'EN' }, { value: 'kn', label: 'KN' },
@@ -43,6 +45,32 @@ export function AppShell({
     { value: 'mr', label: 'MR' }, { value: 'bn', label: 'BN' },
     { value: 'gu', label: 'GU' },
   ];
+
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      api.get('/notifications')
+        .then(res => {
+          if (res.data?.success) {
+            setNotifications(res.data.data);
+          }
+        })
+        .catch(err => console.error("Failed to load notifications", err));
+    }
+  }, [currentUser]);
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await api.post(`/notifications/${id}/read`);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: 'Read' } : n));
+    } catch (err) {
+      console.error("Failed to mark notification read", err);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => n.status !== 'Read').length;
 
   return (
     <div
@@ -53,39 +81,39 @@ export function AppShell({
       {/* Offline Status Banner */}
       <OfflineStatusBanner isOnline={isOnline} pendingCount={offlineQueue?.length ?? 0} />
 
-      {/* ── Sticky Header ── */}
-      <header className="backdrop-blur-md border-b border-[var(--border-color)] bg-[var(--bg-card)]/80 sticky top-0 z-50 px-4 py-3 md:px-8 transition-colors duration-300 shadow-sm">
+      {/* ── Sticky Header — NextGen Navy ── */}
+      <header style={{ background: 'linear-gradient(135deg, #1B2B5B 0%, #243469 100%)' }} className="border-b border-navy-900/30 sticky top-0 z-50 px-4 py-3 md:px-8 transition-colors duration-300 shadow-md">
         <div className="max-w-7xl mx-auto flex flex-row justify-between items-center gap-4">
 
           {/* Logo + Title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 shrink-0 brand-logo-container flex items-center justify-center p-1 rounded-xl bg-slate-950/10 dark:bg-white/5 border border-slate-500/10">
-              <img src={isLight ? logoLight : logoDark} alt="Jeevan Roshini" className="w-7 h-7 object-contain" />
+            <div className="w-9 h-9 shrink-0 flex items-center justify-center p-1 rounded-xl bg-white/10 border border-white/15">
+              <img src={logoNew} alt="Jeevan Roshini" className="w-7 h-7 object-contain" style={{ borderRadius: '6px' }} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xs md:text-sm font-black uppercase tracking-wider truncate text-[var(--text-primary)]">
+                <h1 className="text-xs md:text-sm font-black uppercase tracking-wider truncate text-white">
                   Jeevan Roshini
                 </h1>
-                <span className="hidden sm:flex text-xs font-bold border px-2 py-0.5 rounded-full items-center gap-1 shrink-0 bg-brand-500/10 text-brand-600 dark:text-brand-400 border-brand-500/20">
-                  <Sparkles className="w-3 h-3 text-brand-500" /> Portal
+                <span className="hidden sm:flex text-xs font-bold border px-2 py-0.5 rounded-full items-center gap-1 shrink-0 bg-white/10 text-white/90 border-white/20">
+                  <Sparkles className="w-3 h-3 text-cyan-300" /> Portal
                 </span>
               </div>
-              <p className="hidden md:block text-xs font-medium mt-0.5 text-[var(--text-secondary)]">
+              <p className="hidden md:block text-xs font-medium mt-0.5 text-white/60">
                 Ayathana Trust Community Health Governance &amp; PWA
               </p>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-2 p-1 rounded-2xl border shrink-0 bg-[var(--bg-inner)] border-[var(--border-color)]">
+          <div className="flex items-center gap-2 p-1 rounded-2xl border shrink-0 bg-white/8 border-white/15 backdrop-blur-sm">
 
             {/* Environment Badge */}
             {env && (
               <span className={`px-2.5 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider border ${
-                env === 'Production' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-                env === 'Staging'    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
-                'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
+                env === 'Production' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/25' :
+                env === 'Staging'    ? 'bg-amber-500/20 text-amber-300 border-amber-500/25' :
+                'bg-purple-500/20 text-purple-300 border-purple-500/25'
               }`}>
                 {env}
               </span>
@@ -94,47 +122,82 @@ export function AppShell({
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all duration-200 border border-[var(--border-color)] bg-[var(--bg-card)] hover:bg-[var(--bg-inner)] text-[var(--text-primary)]"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all duration-200 border border-white/15 bg-white/10 hover:bg-white/18 text-white/90"
             >
-              {isLight ? <Moon className="w-3.5 h-3.5 text-amber-600" /> : <Sun className="w-3.5 h-3.5 text-cyan-400" />}
+              {isLight ? <Moon className="w-3.5 h-3.5 text-amber-300" /> : <Sun className="w-3.5 h-3.5 text-yellow-300" />}
               <span className="hidden sm:inline">{isLight ? 'Dark' : 'Light'}</span>
             </button>
 
-            {/* Branding Showcase */}
-            {onOpenShowcase && (
-              <button
-                onClick={onOpenShowcase}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all duration-200 border border-[var(--border-color)] bg-[var(--bg-card)] hover:bg-[var(--bg-inner)] text-[var(--text-primary)]"
-              >
-                <Paintbrush className="w-3.5 h-3.5 text-brand-500" />
-                <span className="hidden sm:inline">Branding</span>
-              </button>
-            )}
+
 
             {/* Language Selector */}
-            <div className="hidden sm:flex items-center gap-1 border-r border-[var(--border-color)] pr-2.5 pl-1.5">
-              <Globe className="w-3.5 h-3.5 shrink-0 text-[var(--text-secondary)]" />
+            <div className="hidden sm:flex items-center gap-1 border-r border-white/15 pr-2.5 pl-1.5">
+              <Globe className="w-3.5 h-3.5 shrink-0 text-white/60" />
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value)}
-                className="bg-transparent border-0 text-xs font-bold focus:ring-0 cursor-pointer pr-1 py-0.5 text-[var(--text-primary)]"
+                className="bg-transparent border-0 text-xs font-bold focus:ring-0 cursor-pointer pr-1 py-0.5 text-white/90"
               >
                 {LOCALES.map(l => (
-                  <option key={l.value} value={l.value} className="bg-[var(--bg-card)] text-[var(--text-primary)]">
+                  <option key={l.value} value={l.value} className="bg-slate-800 text-white">
                     {l.label}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Online/Offline Button indicator */}
-            <div className="flex items-center border-r border-[var(--border-color)] pr-2">
+            {/* Notification Bell */}
+            <div className="relative border-r border-white/15 pr-2">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-1.5 rounded-xl transition-all duration-200 hover:bg-white/18 text-white/90"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
+                )}
+              </button>
+              
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-72 max-h-96 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 py-2">
+                  <div className="px-4 py-2 border-b border-slate-800 mb-2">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">Notifications</h3>
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-slate-500 text-xs">No notifications yet.</div>
+                  ) : (
+                    <div className="space-y-1">
+                      {notifications.map(notif => (
+                        <div 
+                          key={notif.id} 
+                          onClick={() => notif.status !== 'Read' && handleMarkAsRead(notif.id)}
+                          className={`px-4 py-2.5 cursor-pointer hover:bg-slate-800 transition ${notif.status !== 'Read' ? 'bg-slate-800/50' : 'opacity-75'}`}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-xs font-bold text-white truncate pr-2">{notif.title}</span>
+                            {notif.status !== 'Read' && <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-emerald-500 mt-1"></span>}
+                          </div>
+                          <p className="text-[10px] text-slate-400 line-clamp-2">{notif.message_body}</p>
+                          <span className="text-[9px] text-slate-500 mt-1 block">
+                            {new Date(notif.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+
+            {/* Online/Offline indicator */}
+            <div className="flex items-center border-r border-white/15 pr-2">
               <button
                 onClick={handleToggleOnline}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all duration-200 border ${
                   isOnline
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                    : 'bg-rose-500/10 text-rose-605 dark:text-rose-400 border-rose-500/20'
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/25'
+                    : 'bg-rose-500/20 text-rose-300 border-rose-500/25'
                 }`}
               >
                 {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
@@ -142,15 +205,27 @@ export function AppShell({
               </button>
             </div>
 
-            {/* User + Logout */}
+            {/* User Avatar + Clickable Name + Logout */}
             <div className="flex items-center gap-2 pl-1 pr-1.5">
-              <div className="hidden sm:flex flex-col text-left">
-                <span className="text-xs font-extrabold leading-tight text-[var(--text-primary)]">{currentUser?.name}</span>
-                <span className="text-[11px] font-semibold uppercase text-[var(--text-secondary)]">{currentUser?.role}</span>
+              <UserAvatar
+                user={currentUser}
+                size="w-8 h-8"
+                textSize="text-xs"
+                onClick={() => navigate('/profile')}
+              />
+              <div
+                className="hidden sm:flex flex-col text-left cursor-pointer group"
+                onClick={() => navigate('/profile')}
+                title="View Profile"
+              >
+                <span className="text-xs font-extrabold leading-tight text-white group-hover:text-cyan-200 transition-colors underline-offset-2 hover:underline">
+                  {currentUser?.name}
+                </span>
+                <span className="text-[11px] font-semibold uppercase text-white/60">{currentUser?.role}</span>
               </div>
               <button
                 onClick={onLogout}
-                className="p-2 border rounded-xl transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/20 text-rose-600 dark:text-rose-400"
+                className="p-2 border rounded-xl transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 border-rose-500/30 text-rose-300"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Logout</span>
@@ -187,10 +262,6 @@ export function AppShell({
         </p>
       </footer>
 
-      {/* Logo Showcase Modal */}
-      {onOpenShowcase && (
-        <LogoShowcase isOpen={isShowcaseOpen} onClose={onCloseShowcase} />
-      )}
     </div>
   );
 }

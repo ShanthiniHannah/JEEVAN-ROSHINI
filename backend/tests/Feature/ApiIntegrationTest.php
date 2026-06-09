@@ -141,31 +141,42 @@ class ApiIntegrationTest extends TestCase
     }
 
     #[Test]
-    public function vhw_can_check_in(): void
+    public function vhw_login_automatically_creates_daily_session(): void
     {
-        $response = $this->withHeaders($this->authHeader($this->vhwToken))
-            ->postJson('/api/v1/attendance/check-in', [
-                'gps_coords' => '13.1238,75.9421',
-            ]);
+        $user = \App\Models\User::where('email', 'preema@ayathanatrust.org')->first();
 
-        $response->assertStatus(201)
-            ->assertJson(['success' => true]);
+        $session = \App\Models\DailySession::where('vhw_id', $user->id)
+            ->whereDate('session_date', now()->toDateString())
+            ->first();
+        $this->assertNotNull($session);
+        $this->assertEquals('Present', $session->attendance_status);
+
+        $response = $this->withHeaders($this->authHeader($this->vhwToken))
+            ->getJson('/api/v1/attendances');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'attendance_status' => 'Present',
+            ]);
     }
 
     #[Test]
-    public function vhw_can_check_out(): void
+    public function vhw_logout_automatically_records_logout_time(): void
     {
-        $checkIn = $this->withHeaders($this->authHeader($this->vhwToken))
-            ->postJson('/api/v1/attendance/check-in', [
-                'gps_coords' => '13.1238,75.9421',
-            ]);
-        $checkIn->assertStatus(201);
+        $user = \App\Models\User::where('email', 'preema@ayathanatrust.org')->first();
 
         $response = $this->withHeaders($this->authHeader($this->vhwToken))
-            ->postJson('/api/v1/attendance/check-out');
+            ->postJson('/api/v1/logout');
 
         $response->assertStatus(200)
-            ->assertJson(['success' => true]);
+            ->assertJson(['message' => 'Logged out successfully.']);
+
+        $session = \App\Models\DailySession::where('vhw_id', $user->id)
+            ->whereDate('session_date', now()->toDateString())
+            ->first();
+
+        $this->assertNotNull($session);
+        $this->assertNotNull($session->logout_time);
     }
 
     #[Test]

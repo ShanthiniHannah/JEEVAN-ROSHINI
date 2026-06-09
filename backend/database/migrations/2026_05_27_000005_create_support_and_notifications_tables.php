@@ -14,8 +14,7 @@ return new class extends Migration
         // 1. Vulnerable Group Registry
         Schema::create('vulnerable_groups', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->string('category'); // Widow, Elderly Living Alone, Disabled, Orphan, Palliative Patient, Pregnant Mother, SAM Child
             $table->string('severity')->default('Moderate'); // Mild, Moderate, Critical
             $table->text('special_notes')->nullable();
@@ -28,8 +27,7 @@ return new class extends Migration
         // 2. Beneficiary Support Distributions (with full approval workflow)
         Schema::create('beneficiary_supports', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->string('support_type'); // Financial Assistance, Nutrition Kit, Medicine Support, Government Scheme Linkage, Emergency Aid
             $table->text('description')->nullable();
             $table->decimal('financial_amount', 10, 2)->nullable();

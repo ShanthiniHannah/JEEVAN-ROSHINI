@@ -1,0 +1,820 @@
+/* ══════════════════════════════════════════════════════════
+   JEEVAN ROSHINI — LOGIN PAGE
+   Design System: NextGen Healthcare · Enterprise Health Portal
+   Palette: Royal Blue · Deep Navy · Clinical Teal · Pure White
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Core Design Tokens (Default = Light / Professional) ── */
+.login-page-wrapper {
+  /* Background */
+  --ng-bg:          #A3C3FC;    /* Soft blue background matching Dribbble shot */
+  --ng-bg-deep:     #EBF0F7;    /* Slightly deeper section */
+  --ng-card:        #FFFFFF;    /* Card surface */
+
+  /* Brand */
+  --ng-navy:        #1B2B5B;    /* Authority navy (NextGen primary) */
+  --ng-navy-mid:    #243469;
+  --ng-blue:        #0057B8;    /* Royal blue CTA */
+  --ng-blue-light:  #1A6FCC;
+  --ng-teal:        #0095A8;    /* Clinical teal accent */
+  --ng-teal-light:  #00B3C9;
+
+  /* Text */
+  --ng-text-1:      #1B2B5B;    /* Navy — primary */
+  --ng-text-2:      #475569;    /* Slate 600 — secondary */
+  --ng-text-3:      #94A3B8;    /* Slate 400 — muted */
+
+  /* Borders & Shadows */
+  --ng-border:      #E2E8F0;
+  --ng-border-blue: rgba(0, 87, 184, 0.18);
+  --ng-shadow:      0 2px 16px rgba(27, 43, 91, 0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --ng-shadow-lg:   0 8px 40px rgba(27, 43, 91, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+
+  /* Semantic */
+  --ng-success:     #22C55E;
+  --ng-warning:     #F59E0B;
+  --ng-danger:      #EF4444;
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+
+  /* Easings */
+  --ease:   cubic-bezier(0.4, 0, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  font-family: 'Inter', 'Outfit', sans-serif;
+  background: var(--ng-bg);
+  color: var(--ng-text-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+/* ─── Dark Theme Override ─── */
+.login-page-wrapper.dark-theme {
+  --ng-bg:          #0F172A;
+  --ng-bg-deep:     #162032;
+  --ng-card:        #1E293B;
+  --ng-navy:        #3B82F6;
+  --ng-navy-mid:    #60A5FA;
+  --ng-blue:        #3B82F6;
+  --ng-blue-light:  #60A5FA;
+  --ng-teal:        #14B8A6;
+  --ng-teal-light:  #2DD4BF;
+  --ng-text-1:      #F1F5F9;
+  --ng-text-2:      #94A3B8;
+  --ng-text-3:      #64748B;
+  --ng-border:      #334155;
+  --ng-border-blue: rgba(59, 130, 246, 0.2);
+  --ng-shadow:      0 4px 24px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
+  --ng-shadow-lg:   0 12px 48px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* ══ CANVAS BACKGROUND ══ */
+.login-page-wrapper #canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+}
+
+/* ══ ATMOSPHERIC LAYERS (Subtle blue radials) ══ */
+.login-page-wrapper .atmosphere {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.login-page-wrapper .atm-radial-1 {
+  position: absolute;
+  width: 900px; height: 900px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 87, 184, 0.06) 0%, transparent 70%);
+  top: -250px; left: -200px;
+  animation: atmDrift1 20s ease-in-out infinite alternate;
+}
+.login-page-wrapper .atm-radial-2 {
+  position: absolute;
+  width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 149, 168, 0.05) 0%, transparent 70%);
+  bottom: -150px; right: -100px;
+  animation: atmDrift2 16s ease-in-out infinite alternate;
+}
+.login-page-wrapper .atm-radial-3 {
+  position: absolute;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 87, 184, 0.04) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: atmPulse 8s ease-in-out infinite;
+}
+
+/* Dark theme atmospherics */
+.login-page-wrapper.dark-theme .atm-radial-1 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+}
+.login-page-wrapper.dark-theme .atm-radial-2 {
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.06) 0%, transparent 70%);
+}
+.login-page-wrapper.dark-theme .atm-radial-3 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+}
+
+@keyframes atmDrift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,-40px) scale(1.08); } }
+@keyframes atmDrift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-40px,60px) scale(1.12); } }
+@keyframes atmPulse  { 0%,100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); } }
+
+/* ══ NOISE TEXTURE (very subtle) ══ */
+.login-page-wrapper .noise {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ══ PAGE LAYOUT ══ */
+.login-page-wrapper .page {
+  position: relative; z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 80px;
+}
+
+/* ══ TOP CONTROLS ══ */
+.login-page-wrapper .top-controls {
+  position: absolute; top: 24px; right: 24px;
+  display: flex; align-items: center; gap: 8px;
+  z-index: 10;
+}
+.login-page-wrapper .ctrl-btn {
+  height: 36px; padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--ng-border);
+  border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 500; letter-spacing: 0.04em;
+  color: var(--ng-text-2);
+  cursor: pointer; display: flex; align-items: center; gap: 7px;
+  font-family: 'Inter', 'Outfit', sans-serif;
+  transition: all 0.2s var(--ease);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.login-page-wrapper.dark-theme .ctrl-btn {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: var(--ng-border);
+  color: var(--ng-text-2);
+}
+.login-page-wrapper .ctrl-btn:hover {
+  background: #EBF0F7;
+  border-color: var(--ng-border-blue);
+  color: var(--ng-navy);
+  box-shadow: 0 2px 8px rgba(0,87,184,0.1);
+}
+.login-page-wrapper.dark-theme .ctrl-btn:hover {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: var(--ng-text-1);
+}
+.login-page-wrapper .ctrl-btn svg {
+  width: 14px; height: 14px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ══ AUTH CARD LAYOUTS (Dribbble 3D Style) ══ */
+.login-page-wrapper .card-container {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  z-index: 5;
+  animation: revealUp 0.7s var(--ease) both;
+}
+
+.login-page-wrapper .card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--ng-shadow-lg);
+  overflow: visible;
+  position: relative;
+  min-height: 520px;
+}
+
+/* ── Card Left: Welcome & Graphics ── */
+.login-page-wrapper .card-left {
+  position: relative;
+  background: linear-gradient(135deg, #E6F8F6 0%, #B8EDE6 100%);
+  border-top-left-radius: 27px;
+  border-bottom-left-radius: 27px;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  text-align: left;
+  z-index: 1;
+}
+
+.login-page-wrapper.dark-theme .card-left {
+  background: linear-gradient(135deg, #0D262B 0%, #051A1D 100%);
+}
+
+.login-page-wrapper .left-graphics {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page-wrapper .circle-graphic {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.login-page-wrapper .graphic-1 {
+  width: 220px;
+  height: 220px;
+  border: 24px solid rgba(0, 149, 168, 0.08);
+  top: -40px;
+  left: -40px;
+}
+
+.login-page-wrapper .graphic-2 {
+  width: 80px;
+  height: 80px;
+  border: 12px solid rgba(232, 131, 10, 0.08);
+  top: 120px;
+  left: 160px;
+}
+
+.login-page-wrapper .left-content {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+}
+
+.login-page-wrapper .hello-title {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #00796B;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.login-page-wrapper.dark-theme .hello-title {
+  color: #2DD4BF;
+}
+
+.login-page-wrapper .hello-desc {
+  font-size: 16px;
+  color: #004D40;
+  font-weight: 500;
+  max-width: 220px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.login-page-wrapper.dark-theme .hello-desc {
+  color: #94A3B8;
+}
+
+/* ── Doctor Illustration Container ── */
+.login-page-wrapper .doctor-container {
+  position: absolute;
+  bottom: -4px;
+  right: -50px;
+  width: 270px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.login-page-wrapper .doctor-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 77, 64, 0.15));
+}
+
+/* ── Card Right: Form ── */
+.login-page-wrapper .card-right {
+  padding: 48px;
+  background: var(--ng-card);
+  border-top-right-radius: 27px;
+  border-bottom-right-radius: 27px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  z-index: 2;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page-wrapper .right-graphics {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page-wrapper .ring-graphic.ring-1 {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border: 18px solid rgba(0, 150, 136, 0.08);
+  border-radius: 50%;
+  top: -50px;
+  left: -50px;
+  z-index: 1;
+}
+
+.login-page-wrapper .circle-graphic.dot-1 {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(232, 131, 10, 0.08);
+  border-radius: 50%;
+  top: 90px;
+  left: 80px;
+  z-index: 1;
+}
+
+
+.login-page-wrapper .circle-graphic.dot-2 {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: rgba(232, 131, 10, 0.08);
+  border-radius: 50%;
+  top: 110px;
+  right: 110px;
+  z-index: 0;
+}
+
+/* ── Secondary Card for Demo/Metrics ── */
+.login-page-wrapper .secondary-card {
+  width: 100%;
+  padding: 32px 48px;
+  background: var(--ng-card);
+  border: 1px solid var(--ng-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--ng-shadow);
+  text-align: center;
+  z-index: 2;
+}
+
+/* ── Card Header ── */
+.login-page-wrapper .card-head {
+  margin-bottom: 28px;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+/* ── Logo ── */
+.login-page-wrapper .logo {
+  display: inline-flex; align-items: center; gap: 14px;
+  margin-bottom: 20px;
+}
+.login-page-wrapper .logo-gem {
+  width: 48px; height: 48px;
+  position: relative; flex-shrink: 0;
+}
+.login-page-wrapper .logo-gem svg { width: 48px; height: 48px; }
+.login-page-wrapper .logo-wordmark {
+  display: flex; flex-direction: column; gap: 2px; text-align: left;
+}
+.login-page-wrapper .logo-wordmark-main {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--ng-navy);
+}
+.login-page-wrapper .logo-wordmark-sub {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+  color: var(--ng-text-3); text-transform: uppercase;
+}
+
+/* ── Portal Badge ── */
+.login-page-wrapper .portal-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0, 87, 184, 0.06);
+  border: 1px solid rgba(0, 87, 184, 0.14);
+  border-radius: 6px; padding: 6px 14px;
+  margin-bottom: 18px;
+}
+.login-page-wrapper.dark-theme .portal-badge {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+.login-page-wrapper .portal-badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ng-teal);
+  box-shadow: 0 0 8px var(--ng-teal);
+  animation: dotPulse 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes dotPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
+.login-page-wrapper .portal-badge-text {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ng-blue);
+}
+.login-page-wrapper.dark-theme .portal-badge-text { color: var(--ng-blue-light); }
+
+.login-page-wrapper .card-head h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--ng-navy); margin-bottom: 6px;
+}
+.login-page-wrapper .card-head p {
+  font-size: 15px; font-weight: 400; color: var(--ng-text-2);
+}
+
+
+
+/* ══ FORM ══ */
+.login-page-wrapper .form-group { margin-bottom: 18px; text-align: left; }
+.login-page-wrapper .form-label {
+  display: block; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ng-text-2); margin-bottom: 7px;
+}
+.login-page-wrapper .input-field {
+  position: relative;
+  background: #FFFFFF;
+  border: 1.5px solid var(--ng-border);
+  border-radius: var(--r-sm);
+  transition: all 0.2s var(--ease);
+  overflow: hidden;
+}
+.login-page-wrapper.dark-theme .input-field {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: var(--ng-border);
+}
+.login-page-wrapper .input-field:focus-within {
+  border-color: var(--ng-blue);
+  box-shadow: 0 0 0 3px rgba(0, 87, 184, 0.12);
+}
+.login-page-wrapper.dark-theme .input-field:focus-within {
+  border-color: var(--ng-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+.login-page-wrapper .field-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--ng-text-3); pointer-events: none;
+  transition: color 0.2s;
+}
+.login-page-wrapper .input-field:focus-within .field-icon { color: var(--ng-blue); }
+.login-page-wrapper .field-icon svg {
+  width: 16px; height: 16px; stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.login-page-wrapper .input-field input {
+  width: 100%; padding: 13px 44px;
+  background: transparent; border: none; outline: none;
+  font-family: 'Inter', 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 400;
+  color: var(--ng-text-1); letter-spacing: 0.02em;
+}
+.login-page-wrapper .input-field input::placeholder { color: var(--ng-text-3); }
+.login-page-wrapper .eye-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--ng-text-3); padding: 5px;
+  transition: color 0.2s; z-index: 10;
+}
+.login-page-wrapper .eye-toggle:hover { color: var(--ng-blue); }
+.login-page-wrapper .eye-toggle svg {
+  width: 16px; height: 16px; stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; display: block;
+}
+
+/* ── Row (Remember / Forgot) ── */
+.login-page-wrapper .form-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.login-page-wrapper .check-group { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.login-page-wrapper .check-group input { display: none; }
+.login-page-wrapper .check-box {
+  width: 17px; height: 17px; border-radius: 4px;
+  border: 1.5px solid var(--ng-border);
+  background: #FFFFFF;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s var(--ease); flex-shrink: 0;
+}
+.login-page-wrapper.dark-theme .check-box {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: var(--ng-border);
+}
+.login-page-wrapper .check-group input:checked + .check-box {
+  background: var(--ng-blue);
+  border-color: var(--ng-blue);
+  box-shadow: 0 0 0 2px rgba(0, 87, 184, 0.15);
+}
+.login-page-wrapper .check-box svg {
+  width: 10px; height: 10px; stroke: white; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0; transition: opacity 0.15s;
+}
+.login-page-wrapper .check-group input:checked + .check-box svg { opacity: 1; }
+.login-page-wrapper .check-label {
+  font-size: 13px; font-weight: 400; color: var(--ng-text-2); user-select: none;
+}
+.login-page-wrapper .forgot-link {
+  font-size: 13px; font-weight: 500; color: var(--ng-blue);
+  text-decoration: none; transition: color 0.2s;
+}
+.login-page-wrapper .forgot-link:hover { color: var(--ng-navy); text-decoration: underline; }
+
+/* ══ CTA BUTTON — NextGen Royal Blue ══ */
+.login-page-wrapper .cta-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(90deg, #5185EC 0%, #3B72E3 100%);
+  border: none;
+  border-radius: 30px;
+  font-family: 'Inter', 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 600; letter-spacing: 0.04em;
+  color: white;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.2s var(--spring), box-shadow 0.25s var(--ease), background 0.2s;
+  box-shadow: 0 4px 16px rgba(59, 114, 227, 0.35), 0 1px 4px rgba(0,0,0,0.1);
+}
+.login-page-wrapper .cta-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.login-page-wrapper .cta-btn:hover {
+  background: linear-gradient(90deg, #3B72E3 0%, #2458C7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(59, 114, 227, 0.45), 0 2px 8px rgba(0,0,0,0.12);
+}
+.login-page-wrapper .cta-btn:hover::after { opacity: 1; }
+.login-page-wrapper .cta-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0,87,184,0.3); }
+.login-page-wrapper .cta-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.login-page-wrapper .cta-inner svg {
+  width: 17px; height: 17px; stroke: white; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 0.25s var(--spring);
+}
+.login-page-wrapper .cta-btn:hover .cta-inner svg { transform: translateX(4px); }
+.login-page-wrapper .btn-spinner {
+  display: none; width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,0.35); border-top-color: white;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.login-page-wrapper .cta-btn.loading .btn-text  { opacity: 0; }
+.login-page-wrapper .cta-btn.loading .btn-spinner { display: block; }
+.login-page-wrapper .cta-btn.loading .cta-arrow  { display: none; }
+
+/* ══ SEPARATOR ══ */
+.login-page-wrapper .separator {
+  display: flex; align-items: center; gap: 14px;
+  margin: 22px 0 18px;
+}
+.login-page-wrapper .sep-line { flex: 1; height: 1px; background: var(--ng-border); }
+.login-page-wrapper .sep-label {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ng-text-3); white-space: nowrap;
+}
+
+/* ══ DEMO LOGIN CARDS ══ */
+.login-page-wrapper .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.login-page-wrapper .demo-item {
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid var(--ng-border);
+  border-radius: var(--r-sm);
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.2s var(--ease);
+  text-align: left;
+}
+.login-page-wrapper.dark-theme .demo-item {
+  background: rgba(255,255,255,0.03);
+  border-color: var(--ng-border);
+}
+/* Color left border accent per role */
+.login-page-wrapper .demo-item::before {
+  content: '';
+  position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+  opacity: 0; transition: opacity 0.25s;
+  border-radius: 0 2px 2px 0;
+}
+.login-page-wrapper .demo-item.d-admin::before  { background: var(--ng-blue); }
+.login-page-wrapper .demo-item.d-dir::before    { background: var(--ng-teal); }
+.login-page-wrapper .demo-item.d-vhw1::before   { background: #7C3AED; }
+.login-page-wrapper .demo-item.d-vhw2::before   { background: #DB2777; }
+.login-page-wrapper .demo-item:hover {
+  background: #EDF3FC;
+  border-color: var(--ng-border-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 87, 184, 0.07);
+}
+.login-page-wrapper.dark-theme .demo-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+.login-page-wrapper .demo-item:hover::before { opacity: 1; }
+.login-page-wrapper .demo-item:hover .demo-role { color: var(--ng-navy); }
+.login-page-wrapper .demo-role  {
+  font-size: 13px; font-weight: 600; color: var(--ng-text-1);
+  margin-bottom: 2px; letter-spacing: 0.01em;
+}
+.login-page-wrapper .demo-email {
+  font-size: 12px; font-weight: 400; color: var(--ng-text-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Tag badge per role */
+.login-page-wrapper .demo-badge {
+  display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px;
+  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+  margin-bottom: 5px;
+}
+.login-page-wrapper .d-admin .demo-badge  { background: rgba(0,87,184,0.1);   color: #0057B8; }
+.login-page-wrapper .d-dir .demo-badge    { background: rgba(0,149,168,0.1);  color: #0095A8; }
+.login-page-wrapper .d-vhw1 .demo-badge  { background: rgba(124,58,237,0.1); color: #7C3AED; }
+.login-page-wrapper .d-vhw2 .demo-badge  { background: rgba(219,39,119,0.1); color: #DB2777; }
+
+/* ══ LIVE CLINICAL METRICS ══ */
+.login-page-wrapper .clinical-stats-header {
+  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ng-text-3); font-weight: 600; margin: 24px 0 10px;
+}
+.login-page-wrapper .stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.login-page-wrapper .stat {
+  padding: 12px 8px;
+  background: #F8FAFC;
+  border: 1px solid var(--ng-border);
+  border-radius: var(--r-sm);
+  text-align: center;
+  transition: all 0.2s var(--ease);
+}
+.login-page-wrapper.dark-theme .stat {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--ng-border);
+}
+.login-page-wrapper .stat:hover {
+  border-color: var(--ng-border-blue);
+  background: #EDF3FC;
+  transform: translateY(-1px);
+}
+.login-page-wrapper .stat-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--ng-blue);
+  line-height: 1; margin-bottom: 3px;
+}
+.login-page-wrapper.dark-theme .stat-val { color: var(--ng-blue-light); }
+.login-page-wrapper .stat-label {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ng-text-3); font-weight: 500;
+}
+
+/* ══ CARD FOOTER ══ */
+.login-page-wrapper .card-foot {
+  margin-top: 22px; text-align: center;
+  font-size: 12px; font-weight: 400; color: var(--ng-text-3); letter-spacing: 0.03em;
+}
+.login-page-wrapper .card-foot a {
+  color: var(--ng-blue); text-decoration: none; transition: color 0.2s;
+}
+.login-page-wrapper .card-foot a:hover { color: var(--ng-navy); text-decoration: underline; }
+
+/* ══ SHOWCASE BUTTON ══ */
+.login-page-wrapper .showcase-btn-container {
+  display: flex; justify-content: center; padding-top: 18px;
+}
+.login-page-wrapper .showcase-btn {
+  font-size: 12px; font-weight: 600;
+  border: 1px solid var(--ng-border-blue);
+  border-radius: 20px; padding: 6px 16px;
+  background: rgba(0, 87, 184, 0.06);
+  color: var(--ng-blue);
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s var(--ease);
+}
+.login-page-wrapper .showcase-btn:hover {
+  background: rgba(0, 87, 184, 0.12);
+  border-color: rgba(0, 87, 184, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ══ TOAST ══ */
+.login-page-wrapper .toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--ng-navy);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 40px; padding: 12px 26px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transition: transform 0.5s var(--spring);
+  z-index: 999; white-space: nowrap;
+  backdrop-filter: blur(20px);
+}
+.login-page-wrapper .toast.show { transform: translateX(-50%) translateY(0); }
+.login-page-wrapper .toast-pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ng-teal-light); box-shadow: 0 0 10px var(--ng-teal);
+  animation: dotPulse 1.5s infinite;
+}
+.login-page-wrapper .toast-text {
+  font-size: 13px; font-weight: 500; color: #FFFFFF;
+}
+
+/* ══ ENTRY ANIMATIONS ══ */
+@keyframes revealUp   { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes revealDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══ DATA TICKER ══ */
+.login-page-wrapper .ticker-wrap {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 40px; overflow: hidden;
+  border-top: 1px solid var(--ng-border);
+  display: flex; align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+.login-page-wrapper.dark-theme .ticker-wrap {
+  background: rgba(15, 23, 42, 0.85);
+  border-top-color: var(--ng-border);
+}
+.login-page-wrapper .ticker-inner {
+  display: flex; gap: 60px; white-space: nowrap;
+  animation: tickerScroll 32s linear infinite;
+}
+@keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.login-page-wrapper .ticker-item {
+  font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--ng-text-2); display: flex; align-items: center; gap: 8px;
+}
+.login-page-wrapper .ticker-item span { color: var(--ng-blue); font-weight: 700; }
+.login-page-wrapper.dark-theme .ticker-item span { color: var(--ng-blue-light); }
+.login-page-wrapper .ticker-dot {
+  width: 3px; height: 3px; border-radius: 50%; background: var(--ng-border);
+}
+
+/* ══ MOBILE RESPONSIVE ══ */
+@media (max-width: 768px) {
+  .login-page-wrapper .card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .login-page-wrapper .card-left {
+    border-top-left-radius: 27px;
+    border-top-right-radius: 27px;
+    border-bottom-left-radius: 0;
+    padding: 36px;
+    align-items: center;
+    text-align: center;
+  }
+  .login-page-wrapper .hello-title {
+    font-size: 38px;
+    margin-bottom: 8px;
+  }
+  .login-page-wrapper .hello-desc {
+    max-width: 100%;
+  }
+  .login-page-wrapper .doctor-container {
+    position: relative;
+    right: 0;
+    bottom: -36px;
+    margin-top: 12px;
+    width: 220px;
+  }
+  .login-page-wrapper .card-right {
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 27px;
+    border-bottom-right-radius: 27px;
+    padding: 36px 24px;
+  }
+  .login-page-wrapper .secondary-card {
+    padding: 24px 16px;
+  }
+  .login-page-wrapper .demo-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .login-page-wrapper .demo-email {
+    font-size: 9px;
+  }
+  .login-page-wrapper .ctrl-btn span {
+    display: none;
+  }
+  .login-page-wrapper .stats-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

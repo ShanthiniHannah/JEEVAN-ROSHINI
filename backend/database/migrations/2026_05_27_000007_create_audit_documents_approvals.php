@@ -28,8 +28,8 @@ return new class extends Migration
         // Drop the basic version from migration 000002 and replace with comprehensive version
         Schema::table('audit_logs', function (Blueprint $table) {
             // Add new columns to the existing table
-            $table->string('model_type')->nullable()->after('action'); // e.g. App\Models\Individual
-            $table->string('model_id')->nullable()->after('model_type'); // The PK of the affected record
+            $table->string('model_type', 100)->nullable()->after('action'); // e.g. App\Models\Individual
+            $table->string('model_id', 50)->nullable()->after('model_type'); // The PK of the affected record
             $table->json('old_values')->nullable()->after('model_id'); // State before change
             $table->json('new_values')->nullable()->after('old_values'); // State after change
             $table->string('event')->nullable()->after('new_values'); // created, updated, deleted, restored, login, export
@@ -45,7 +45,7 @@ return new class extends Migration
         // Categories: prescriptions | lab_reports | photos | government_docs | training_docs | discharge_summaries
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('documentable_type'); // Polymorphic model class
+            $table->string('documentable_type', 100); // Polymorphic model class
             $table->unsignedBigInteger('documentable_id'); // Polymorphic model ID
             $table->string('category'); // prescriptions, lab_reports, photos, government_docs, training_docs, discharge_summaries
             $table->string('title');
@@ -65,7 +65,7 @@ return new class extends Migration
         // Used for: leave_requests, referrals, beneficiary_supports, community_programs
         Schema::create('approvals', function (Blueprint $table) {
             $table->id();
-            $table->string('approvable_type'); // Polymorphic model class
+            $table->string('approvable_type', 100); // Polymorphic model class
             $table->unsignedBigInteger('approvable_id'); // Polymorphic model ID
             $table->foreignId('requested_by')->constrained('users');
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->onDelete('set null');

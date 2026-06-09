@@ -171,47 +171,20 @@ JEEVAN-ROSHINI/
 
 ### Prerequisites
 
-You can set up and run the project either **manually** or via **Docker**. Ensure you have the following prerequisites installed based on your preferred workflow:
+Ensure you have the following prerequisites installed:
 
-| Workflow | Required Tools | Version |
-|:---|:---|:---|
-| **Manual Setup** | Node.js (LTS)<br>PHP<br>Composer<br>MySQL | Node v20+<br>PHP v8.3+<br>Composer v2.x<br>MySQL v8.0+ |
-| **Docker Setup** | Docker Desktop<br>Docker Compose | Docker Engine v20.10+<br>Compose v2.x+ |
-
----
-
-### Setup Method A: Docker Compose (Recommended & Fastest)
-
-Docker automatically orchestrates the MySQL database, Laravel API, and React frontend without needing to install Node, PHP, or MySQL locally.
-
-#### 1. Clone and Navigate
-```bash
-git clone https://github.com/ShanthiniHannah/JEEVAN-ROSHINI.git
-cd JEEVAN-ROSHINI
-```
-
-#### 2. Start the Environment
-Run Docker Compose in detached mode:
-```bash
-docker compose up -d --build
-```
-*This command pulls MySQL 8.0, builds both frontend and backend custom containers, connects the network, establishes volume directories, and executes migrations/seeders automatically.*
-
-#### 3. Access the Portals
-*   **React PWA Client**: `http://localhost:5173`
-*   **Laravel API Server**: `http://localhost:8000`
-
-#### 4. Stop the Environment
-To turn off and remove the Docker containers safely:
-```bash
-docker compose down -v
-```
+| Required Tools | Version |
+|:---|:---|
+| Node.js (LTS) | Node v20+ |
+| PHP | PHP v8.3+ |
+| Composer | Composer v2.x |
+| MySQL | MySQL v8.0+ |
 
 ---
 
-### Setup Method B: Manual Installation
+### Installation
 
-If you prefer to run the application natively on your system:
+Follow these steps to set up the project on your system:
 
 #### 1. Clone and Navigate
 ```bash
@@ -340,8 +313,8 @@ php artisan key:generate --show
 ```
 *This will output a key format: `base64:XYZ...`*
 
-#### Dynamic Override Configuration
-Both local and production orchestrations in `docker-compose.yml` load credentials dynamically from shell environments with secure fallbacks:
+#### Environment Variables
+The following credentials can be configured via your `.env` file:
 *   `APP_KEY`: Encrypts sessions and tokens.
 *   `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`: Standard database overrides.
 
@@ -418,7 +391,6 @@ All testing pipelines are integrated into our `.github/workflows/test.yml` GitHu
 4. **`frontend-coverage`** — Generates and uploads V8 coverage reports (depends on `frontend-test`).
 5. **`backend-lint`** — Runs Laravel Pint code style checks.
 6. **`backend-test`** — Prepares SQLite database and runs all 31 PHPUnit tests (depends on `backend-lint`).
-7. **`docker-build`** — Validates container compilations for frontend & backend images (depends on `frontend-coverage` and `backend-test`).
 
 ---
 

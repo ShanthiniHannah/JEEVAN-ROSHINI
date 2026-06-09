@@ -38,3 +38,15 @@ skill.md
 # Test coverage
 coverage/
 frontend/coverage/
+
+# Local helpers
+analyze_tolerances.py
+inspect_img.py
+remove_background.py
+
+# Composer executable
+backend/composer.phar
+
+# Test reports
+frontend/e2e-report/
+frontend/test-results/

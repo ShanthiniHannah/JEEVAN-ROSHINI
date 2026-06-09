@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class StaffProfile extends Model
 {
@@ -17,7 +18,6 @@ class StaffProfile extends Model
     protected $fillable = [
         'user_id',
         'designation',
-        'assigned_villages',
         'contact_number',
     ];
 
@@ -27,10 +27,14 @@ class StaffProfile extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'assigned_villages' => 'array',   // JSON column storing array of village IDs
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * The attributes that should be appended to the model's array form.
+     */
+    protected $appends = ['assigned_villages'];
 
     /**
      * Get the user (staff member) this profile belongs to.
@@ -41,10 +45,24 @@ class StaffProfile extends Model
     }
 
     /**
-     * Resolve the actual Village models from the assigned_villages ID array.
+     * Dynamic accessor for assigned_villages.
+     * Returns an array of village_codes assigned to the user.
+     */
+    public function getAssignedVillagesAttribute()
+    {
+        return DB::table('village_assignments')
+            ->join('villages', 'village_assignments.village_id', '=', 'villages.id')
+            ->where('village_assignments.user_id', $this->user_id)
+            ->where('village_assignments.status', 'Active')
+            ->pluck('villages.village_code')
+            ->toArray();
+    }
+
+    /**
+     * Resolve the actual Village models from the assigned_villages array.
      */
     public function assignedVillageModels()
     {
-        return Village::whereIn('id', $this->assigned_villages ?? [])->get();
+        return Village::whereIn('village_code', $this->assigned_villages)->get();
     }
 }

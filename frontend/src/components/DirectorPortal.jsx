@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/apiClient.js';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import {
   Clock, Heart, Award, CheckCircle2,
-  MapPin, CheckSquare, BarChart2, BookOpen, Globe
+  MapPin, CheckSquare, BarChart2, BookOpen, Shield
 } from 'lucide-react';
 
 // Decoupled Sub-Components
@@ -15,8 +16,8 @@ import VisitAuditTrail from './director/VisitAuditTrail';
 import VillageComparison from './director/VillageComparison';
 import CommunityPrograms from './director/CommunityPrograms';
 import PerformanceEvaluations from './director/PerformanceEvaluations';
-import DirectorTraining from './director/DirectorTraining';
-import GeographyManagement from './director/GeographyManagement';
+import TrainingModule from './director/TrainingModule';
+import ManageVhws from './director/ManageVhws';
 
 const TABS = [
   { id: 'approvals', label: 'Approval Workflows', icon: CheckSquare },
@@ -26,10 +27,11 @@ const TABS = [
   { id: 'programs', label: 'Community Programs', icon: Heart },
   { id: 'evaluations', label: 'Performance', icon: Award },
   { id: 'training', label: 'Training', icon: BookOpen },
-  { id: 'geography', label: 'Manage States', icon: Globe },
+  { id: 'vhws', label: 'Manage VHWs', icon: Shield },
 ];
 
 export default function DirectorPortal({ state, setState }) {
+  const { currentUser } = useAuth();
   const { subTab } = useParams();
   const navigate = useNavigate();
   const activeTab = subTab || 'approvals';
@@ -38,12 +40,10 @@ export default function DirectorPortal({ state, setState }) {
     navigate(`/director/${newTab}`);
   };
 
-  const [newTraining, setNewTraining] = useState({ title: '', instructor: 'Dr. Ramesh Kumar', date: '', type: 'Online' });
   const [evalWorker, setEvalWorker] = useState('');
   const [evalForm, setEvalForm] = useState({ score: '5', attendance: '', visits: '', feedback: '' });
   const [successBanner, setSuccessBanner] = useState('');
   const [programFilter, setProgramFilter] = useState('all');
-  const [newState, setNewState] = useState({ name: '', code: '', status: 'Active', pinRange: '' });
 
   // Village Comparison States
   const [villageA, setVillageA] = useState('VLG-4829'); // default Gundya
@@ -156,55 +156,6 @@ export default function DirectorPortal({ state, setState }) {
     notify(`Record status updated to ${newStatus}`);
   };
 
-  const handleCreateTraining = (e) => {
-    e.preventDefault();
-    if (!newTraining.title || !newTraining.date) return;
-    setState(prev => ({
-      ...prev,
-      trainings: [
-        { id: 'TRN-' + Math.floor(1000 + Math.random() * 9000), ...newTraining, enrolledCount: 0 },
-        ...(prev.trainings || [])
-      ],
-      auditLogs: [
-        { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Dr. Ramesh Kumar', action: 'CREATE_TRAINING', desc: `Scheduled training: ${newTraining.title}`, ip: '192.168.1.10', time: new Date().toLocaleString(), oldValue: 'None', newValue: newTraining.title },
-        ...prev.auditLogs
-      ]
-    }));
-    setNewTraining({ title: '', instructor: 'Dr. Ramesh Kumar', date: '', type: 'Online' });
-    notify('Training session scheduled successfully!');
-  };
-
-  const handleAddState = (e) => {
-    e.preventDefault();
-    if (!newState.name || !newState.code) return;
-    
-    const exists = (state.states || []).some(
-      s => s.name.toLowerCase() === newState.name.toLowerCase() || s.code.toLowerCase() === newState.code.toLowerCase()
-    );
-    if (exists) {
-      alert("State name or code already exists.");
-      return;
-    }
-
-    const s = {
-      id: 'ST-' + Math.floor(100 + Math.random() * 900),
-      name: newState.name,
-      code: newState.code.toUpperCase(),
-      status: newState.status,
-      pinRange: newState.pinRange || '—'
-    };
-
-    setState(prev => ({
-      ...prev,
-      states: [...(prev.states || []), s],
-      auditLogs: [
-        { id: 'AUD-' + Math.floor(1000 + Math.random() * 9000), user: 'Dr. Ramesh Kumar', action: 'ADD_STATE', desc: `Added state ${s.name}`, ip: '192.168.1.10', time: new Date().toLocaleString(), oldValue: 'None', newValue: s.name },
-        ...prev.auditLogs
-      ]
-    }));
-    setNewState({ name: '', code: '', status: 'Active', pinRange: '' });
-    notify(`State "${s.name}" added successfully!`);
-  };
 
   const handleSubmitEvaluation = (e) => {
     e.preventDefault();
@@ -269,7 +220,6 @@ export default function DirectorPortal({ state, setState }) {
     };
   }, [villageA, villageB, state]);
 
-  const trainings = state.trainings || [];
   const evaluations = state.evaluations || [];
   const vhwStaff = state.staff.filter(s => s.role === 'Village Health Worker');
   
@@ -383,9 +333,7 @@ export default function DirectorPortal({ state, setState }) {
 
         {activeTab === 'programs' && (
           <CommunityPrograms 
-            programFilter={programFilter}
-            setProgramFilter={setProgramFilter}
-            filteredPrograms={filteredPrograms}
+            villages={state.villages || []}
           />
         )}
 
@@ -402,20 +350,17 @@ export default function DirectorPortal({ state, setState }) {
         )}
 
         {activeTab === 'training' && (
-          <DirectorTraining 
-            newTraining={newTraining}
-            setNewTraining={setNewTraining}
-            trainings={trainings}
-            handleCreateTraining={handleCreateTraining}
+          <TrainingModule
+            state={state}
+            setState={setState}
+            currentUser={{ name: 'Project Director' }}
           />
         )}
 
-        {activeTab === 'geography' && (
-          <GeographyManagement 
+        {activeTab === 'vhws' && (
+          <ManageVhws 
             state={state}
-            newState={newState}
-            setNewState={setNewState}
-            handleAddState={handleAddState}
+            currentUser={currentUser}
           />
         )}
       </div>

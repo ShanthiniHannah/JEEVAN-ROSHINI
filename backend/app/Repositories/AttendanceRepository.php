@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\Attendance;
+use App\Models\DailySession;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class AttendanceRepository extends BaseRepository
@@ -10,9 +10,9 @@ class AttendanceRepository extends BaseRepository
     /**
      * AttendanceRepository constructor.
      */
-    public function __construct(Attendance $attendance)
+    public function __construct(DailySession $session)
     {
-        parent::__construct($attendance);
+        parent::__construct($session);
     }
 
     /**
@@ -20,24 +20,24 @@ class AttendanceRepository extends BaseRepository
      */
     public function getLogsByScope(?int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->with('user');
+        $query = $this->model->with('vhw');
 
         if ($userId) {
-            $query->where('user_id', $userId);
+            $query->where('vhw_id', $userId);
         }
 
-        return $query->orderBy('date', 'desc')
-            ->orderBy('check_in_time', 'desc')
+        return $query->orderBy('session_date', 'desc')
+            ->orderBy('login_time', 'desc')
             ->paginate($perPage);
     }
 
     /**
      * Find active check-in record for today.
      */
-    public function findTodayCheckIn(int $userId): ?Attendance
+    public function findTodayCheckIn(int $userId): ?DailySession
     {
-        return $this->model->where('user_id', $userId)
-            ->whereDate('date', now()->toDateString())
+        return $this->model->where('vhw_id', $userId)
+            ->whereDate('session_date', now()->toDateString())
             ->first();
     }
 }

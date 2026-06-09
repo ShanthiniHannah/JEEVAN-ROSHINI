@@ -34,8 +34,11 @@ const INITIAL_STATE = {
   evaluations: [],
   referrals: [],
   villageReports: [],
+  projects: [],
+  approvals: [],
   // Loading flag set by useAppData after first fetch
   _loaded: false,
+  loadedUserId: null,
 };
 
 export function AppDataProvider({ children }) {

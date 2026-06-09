@@ -38,6 +38,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage vulnerable registry', 'disburse social support',
             // Reporting
             'export reports',
+            // Finance
+            'manage finance', 'approve expenses',
+            // Inventory
+            'manage inventory', 'approve medicine requests',
         ];
 
         foreach ($permissions as $permission) {
@@ -61,12 +65,26 @@ class RolesAndPermissionsSeeder extends Seeder
             'view ECHR records',
             'approve leave requests',
             'grade training assessments', 'evaluate staff performance', 'manage training modules',
+            'export reports', 'approve medicine requests',
+        ]);
+
+        // Analytics Head
+        $analyticsRole = Role::create(['name' => 'analytics-head']);
+        $analyticsRole->givePermissionTo([
+            'view ECHR records',
+            'export reports',
+        ]);
+
+        // Finance Head
+        $financeRole = Role::create(['name' => 'finance-head']);
+        $financeRole->givePermissionTo([
+            'manage finance',
+            'approve expenses',
             'export reports',
         ]);
 
         // Super Admin (Ayathana Trust)
         $superAdminRole = Role::create(['name' => 'super-admin']);
-        // Super Admin gets all permissions
         $superAdminRole->givePermissionTo(Permission::all());
 
         // 3. Create Default Accounts for the Prototype
@@ -77,6 +95,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'email' => 'admin@ayathanatrust.org',
             'password' => Hash::make('admin123'),
             'status' => 'Active',
+            'must_change_password' => false,
         ]);
         $adminUser->assignRole($superAdminRole);
 
@@ -86,6 +105,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'email' => 'director@ayathanatrust.org',
             'password' => Hash::make('director123'),
             'status' => 'Active',
+            'must_change_password' => false,
         ]);
         $directorUser->assignRole($directorRole);
 
@@ -95,7 +115,28 @@ class RolesAndPermissionsSeeder extends Seeder
             'email' => 'preema@ayathanatrust.org',
             'password' => Hash::make('vhw123'),
             'status' => 'Active',
+            'must_change_password' => false,
         ]);
         $vhwUser->assignRole($vhwRole);
+
+        // Analytics Head User
+        $analyticsUser = User::create([
+            'name' => 'Dr. Shridhar Bhat',
+            'email' => 'analytics@ayathanatrust.org',
+            'password' => Hash::make('analytics123'),
+            'status' => 'Active',
+            'must_change_password' => false,
+        ]);
+        $analyticsUser->assignRole($analyticsRole);
+
+        // Finance Head User
+        $financeUser = User::create([
+            'name' => 'Suresh Prabhu',
+            'email' => 'finance@ayathanatrust.org',
+            'password' => Hash::make('finance123'),
+            'status' => 'Active',
+            'must_change_password' => false,
+        ]);
+        $financeUser->assignRole($financeRole);
     }
 }

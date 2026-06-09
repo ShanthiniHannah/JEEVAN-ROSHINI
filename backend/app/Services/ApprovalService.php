@@ -61,6 +61,9 @@ class ApprovalService
         // Audit log
         AuditLogger::log($leave, 'created', [], $leave->toArray());
 
+        // Fire workflow trigger
+        event(new \App\Events\LeaveRequested($leave));
+
         return $leave;
     }
 

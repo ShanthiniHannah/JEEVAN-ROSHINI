@@ -12,13 +12,15 @@ class IndividualService
      * The individual repository.
      */
     protected IndividualRepository $individualRepo;
+    protected FamilyCodeService $codeService;
 
     /**
      * IndividualService constructor.
      */
-    public function __construct(IndividualRepository $individualRepo)
+    public function __construct(IndividualRepository $individualRepo, FamilyCodeService $codeService)
     {
         $this->individualRepo = $individualRepo;
+        $this->codeService = $codeService;
     }
 
     /**
@@ -34,8 +36,22 @@ class IndividualService
      */
     public function registerIndividual(array $data): Individual
     {
+        if (!empty($data['family_id']) && !is_numeric($data['family_id'])) {
+            $family = \App\Models\Family::where('family_code', $data['family_id'])->first();
+            if ($family) {
+                $data['family_id'] = $family->id;
+            }
+        }
+
+        if (empty($data['individual_code']) && !empty($data['family_id'])) {
+            $family = \App\Models\Family::find($data['family_id']);
+            if ($family && $family->family_code) {
+                $data['individual_code'] = $this->codeService->generateIndividualCode($family->family_code);
+            }
+        }
+
         if (empty($data['id'])) {
-            $data['id'] = 'JR-'.mt_rand(1000, 9999).'-'.mt_rand(100, 999);
+            $data['id'] = $data['individual_code'] ?? 'JR-'.mt_rand(1000, 9999).'-'.mt_rand(100, 999);
         }
 
         $individual = $this->individualRepo->create($data);

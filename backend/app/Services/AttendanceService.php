@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Attendance;
+use App\Models\DailySession;
 use App\Repositories\AttendanceRepository;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -35,7 +35,7 @@ class AttendanceService
      *
      * @throws Exception
      */
-    public function checkIn(int $userId, string $gpsCoords): Attendance
+    public function checkIn(int $userId, string $gpsCoords): DailySession
     {
         // Prevent multiple check-ins today
         $existing = $this->attendanceRepo->findTodayCheckIn($userId);
@@ -43,18 +43,17 @@ class AttendanceService
             throw new Exception('You are already checked in for today.');
         }
 
-        $attendance = $this->attendanceRepo->create([
-            'user_id' => $userId,
-            'date' => now()->toDateString(),
-            'check_in_time' => now()->toTimeString(),
-            'gps_coords' => $gpsCoords,
-            'status' => 'Present',
+        $session = $this->attendanceRepo->create([
+            'vhw_id' => $userId,
+            'session_date' => now()->toDateString(),
+            'login_time' => now()->toTimeString(),
+            'attendance_status' => 'Present',
         ]);
 
         // Audit log
-        AuditLogger::logAction('CHECK_IN', "Health Worker User {$userId} checked in shifts at GPS [{$gpsCoords}]");
+        AuditLogger::logAction('CHECK_IN', "Health Worker User {$userId} automatically checked in via login.");
 
-        return $attendance;
+        return $session;
     }
 
     /**
@@ -62,25 +61,25 @@ class AttendanceService
      *
      * @throws Exception
      */
-    public function checkOut(int $userId): Attendance
+    public function checkOut(int $userId): DailySession
     {
-        $attendance = $this->attendanceRepo->findTodayCheckIn($userId);
+        $session = $this->attendanceRepo->findTodayCheckIn($userId);
 
-        if (! $attendance) {
+        if (! $session) {
             throw new Exception('No active check-in record found for today.');
         }
 
-        if ($attendance->check_out_time !== null) {
+        if ($session->logout_time !== null) {
             throw new Exception('You are already checked out for today.');
         }
 
-        $updatedAttendance = $this->attendanceRepo->update($attendance->id, [
-            'check_out_time' => now()->toTimeString(),
+        $updatedSession = $this->attendanceRepo->update($session->id, [
+            'logout_time' => now()->toTimeString(),
         ]);
 
         // Audit log
         AuditLogger::logAction('CHECK_OUT', "Health Worker User {$userId} checked out shift successfully.");
 
-        return $updatedAttendance;
+        return $updatedSession;
     }
 }

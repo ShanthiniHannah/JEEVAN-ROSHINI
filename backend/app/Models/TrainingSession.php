@@ -27,6 +27,9 @@ class TrainingSession extends Model
         'completed_at',
         'quiz_score',
         'certificate_path',
+        'attended',
+        'attendance_status',
+        'notes',
     ];
 
     /**

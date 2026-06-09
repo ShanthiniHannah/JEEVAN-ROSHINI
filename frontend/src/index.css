@@ -1,39 +1,54 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", "Outfit", system-ui, -apple-system, sans-serif;
 
-  /* Brand */
-  --color-brand-500: #0ea5e9;
-  --color-brand-600: #0284c7;
-  --color-brand-700: #0369a1;
+  /* ─────────────────────────────────────────────
+     NextGen Healthcare Brand Palette
+     Primary: Royal Blue  #0057B8
+     Navy:    Deep Navy   #1B2B5B
+     Accent:  Clinical Teal #0095A8
+  ───────────────────────────────────────────── */
 
-  /* Teal accent */
-  --color-teal-500: #14b8a6;
-  --color-teal-600: #0d9488;
+  /* Primary Royal Blue */
+  --color-brand-500: #0057B8;
+  --color-brand-600: #004A9C;
+  --color-brand-700: #003D80;
+  --color-brand-400: #1A6FCC;
+  --color-brand-300: #4D94E0;
+
+  /* Navy */
+  --color-navy-900: #1B2B5B;
+  --color-navy-800: #243469;
+  --color-navy-700: #2D3D78;
+
+  /* Clinical Teal */
+  --color-teal-500: #0095A8;
+  --color-teal-600: #007D8F;
+  --color-teal-400: #00B3C9;
 
   /* Semantic */
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-danger:  #ef4444;
 
-  /* Light theme surfaces */
-  --color-surface-0: #f8fafc;   /* page bg */
-  --color-surface-1: #ffffff;   /* card bg */
-  --color-surface-2: #f1f5f9;   /* inner section bg */
-  --color-surface-3: #e2e8f0;   /* dividers */
+  /* ── Light Theme Surfaces — NextGen Clean ── */
+  --color-surface-0: #F4F7FA;   /* page bg — light medical slate */
+  --color-surface-1: #FFFFFF;   /* card bg — pure white */
+  --color-surface-2: #F8FAFC;   /* inner section bg */
+  --color-surface-3: #E2E8F0;   /* borders — soft steel */
 
-  /* Dark theme surfaces */
-  --color-dark-0: #0a0f1e;      /* page bg */
-  --color-dark-1: #111827;      /* card bg */
-  --color-dark-2: #1e293b;      /* inner section bg */
-  --color-dark-3: #334155;      /* dividers */
+  /* ── Dark Theme Surfaces — Navy Slate ── */
+  --color-dark-0: #0F172A;      /* page bg */
+  --color-dark-1: #1E293B;      /* card bg */
+  --color-dark-2: #162032;      /* inner section */
+  --color-dark-3: #334155;      /* borders */
 
-  /* Text */
-  --color-text-primary-light:  #0f172a;
-  --color-text-secondary-light: #475569;
-  --color-text-primary-dark:   #f1f5f9;
-  --color-text-secondary-dark: #94a3b8;
+  /* ── Text ── */
+  --color-text-primary-light:   #1B2B5B;  /* Navy — high authority */
+  --color-text-secondary-light: #64748B;  /* Slate 500 */
+  --color-text-primary-dark:    #F1F5F9;
+  --color-text-secondary-dark:  #94A3B8;
 }
 
 :root, [data-theme="light"] {
@@ -63,43 +78,40 @@
     padding: 0;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    transition: background-color 0.35s ease, color 0.35s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* ── Light Theme Body Override ── */
   body.theme-light {
     background-color: var(--bg-page);
     color: var(--text-primary);
   }
 
-  /* Premium Healthcare Pulse Gradient */
+  /* ── NextGen Subtle Page Gradient ── */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 0;
     background:
-      radial-gradient(ellipse 80% 50% at 20% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 60% at 80% 70%, rgba(20, 184, 166, 0.04) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(14, 165, 233, 0.06) 0%, transparent 70%),
-      radial-gradient(ellipse 70% 50% at 10% 90%, rgba(20, 184, 166, 0.04) 0%, transparent 70%);
-    animation: medicalPulse 16s ease-in-out infinite alternate;
+      radial-gradient(ellipse 70% 50% at 15% 20%, rgba(0, 87, 184, 0.04) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 55% at 85% 75%, rgba(0, 149, 168, 0.03) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 50% 5%,  rgba(0, 87, 184, 0.03) 0%, transparent 65%);
+    animation: ngPulse 20s ease-in-out infinite alternate;
     pointer-events: none;
     transition: opacity 0.5s ease;
   }
 
   body.theme-light::before {
     background:
-      radial-gradient(ellipse 80% 50% at 20% 30%, rgba(14, 165, 233, 0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 60% at 80% 70%, rgba(20, 184, 166, 0.06) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 50% 10%, rgba(14, 165, 233, 0.07) 0%, transparent 70%),
-      radial-gradient(ellipse 70% 50% at 10% 90%, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
+      radial-gradient(ellipse 70% 50% at 15% 20%, rgba(0, 87, 184, 0.05) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 55% at 85% 75%, rgba(0, 149, 168, 0.04) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 50% 5%,  rgba(0, 87, 184, 0.04) 0%, transparent 65%);
   }
 
-  @keyframes medicalPulse {
-    0%   { opacity: 0.9; background-position: 0% 0%; }
-    50%  { opacity: 0.75; }
-    100% { opacity: 0.9; background-position: 100% 100%; }
+  @keyframes ngPulse {
+    0%   { opacity: 0.8; }
+    50%  { opacity: 0.6; }
+    100% { opacity: 0.9; }
   }
 }
 
@@ -113,7 +125,7 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.06;
+  opacity: 0.04;
 }
 
 .ecg-line svg {
@@ -134,14 +146,14 @@
   z-index: 0;
   opacity: 0;
   animation: floatCross 20s ease-in-out infinite;
-  color: rgba(14, 165, 233, 0.12);
+  color: rgba(0, 87, 184, 0.08);
   font-size: 24px;
   font-weight: 900;
   line-height: 1;
 }
 
 .theme-light .med-cross {
-  color: rgba(14, 165, 233, 0.08);
+  color: rgba(0, 87, 184, 0.06);
 }
 
 .med-cross:nth-child(1) { left: 5%;  top: 15%; animation-delay: 0s;   animation-duration: 22s; font-size: 16px; }
@@ -151,22 +163,22 @@
 .med-cross:nth-child(5) { left: 70%; top: 85%; animation-delay: 12s;  animation-duration: 22s; font-size: 14px; }
 
 @keyframes floatCross {
-  0%   { opacity: 0;    transform: translateY(0px) rotate(0deg) scale(0.8); }
-  15%  { opacity: 0.4;  transform: translateY(-15px) rotate(45deg) scale(1); }
-  50%  { opacity: 0.2;  transform: translateY(-30px) rotate(90deg) scale(1.1); }
+  0%   { opacity: 0;    transform: translateY(0px)   rotate(0deg)   scale(0.8); }
+  15%  { opacity: 0.4;  transform: translateY(-15px) rotate(45deg)  scale(1); }
+  50%  { opacity: 0.2;  transform: translateY(-30px) rotate(90deg)  scale(1.1); }
   85%  { opacity: 0.4;  transform: translateY(-15px) rotate(135deg) scale(1); }
-  100% { opacity: 0;    transform: translateY(0px) rotate(180deg) scale(0.8); }
+  100% { opacity: 0;    transform: translateY(0px)   rotate(180deg) scale(0.8); }
 }
 
 /* ── Custom scrollbars ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0b1329; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #334155; }
+::-webkit-scrollbar-track { background: #E2E8F0; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-.theme-light ::-webkit-scrollbar-track { background: #f1f5f9; }
-.theme-light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
-.theme-light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #1E293B; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #334155; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -176,22 +188,22 @@
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fadeIn { animation: fadeIn 0.25s ease-out forwards; }
+.animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
 
-/* ── Grid Dots overlay ── */
+/* ── Grid Dots overlay (subtle NextGen) ── */
 .med-grid {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(0, 87, 184, 0.025) 1px, transparent 1px);
   background-size: 28px 28px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .theme-light .med-grid {
-  background-image: radial-gradient(circle, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
-  opacity: 0.6;
+  background-image: radial-gradient(circle, rgba(0, 87, 184, 0.035) 1px, transparent 1px);
+  opacity: 0.7;
 }
 
 /* ── Interactive backgrounds ── */
@@ -225,27 +237,38 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.02) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 87, 184, 0.02) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 8s linear infinite;
   pointer-events: none;
 }
 
-.theme-light .card-shimmer::after {
-  background: linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.03) 50%, transparent 100%);
+/* ── NextGen Premium Card Shadow ── */
+.ng-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  border: 1px solid #E2E8F0;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+[data-theme="dark"] .ng-card {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 /* ── Premium Glassmorphism Container ── */
 .glass-panel {
-  background-color: rgba(15, 23, 42, 0.45);
+  background-color: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-.theme-light .glass-panel {
-  background-color: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+[data-theme="dark"] .glass-panel {
+  background-color: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(51, 65, 85, 0.6);
 }
 
 /* ── Interactive scale hover lifts ── */
@@ -254,34 +277,79 @@
 }
 .hover-lift:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.06), 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 30px rgba(0, 87, 184, 0.08), 0 4px 12px rgba(0,0,0,0.06);
 }
-.theme-light .hover-lift:hover {
-  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.04), 0 4px 12px rgba(0,0,0,0.03);
+[data-theme="dark"] .hover-lift:hover {
+  box-shadow: 0 12px 30px rgba(0, 87, 184, 0.12), 0 4px 12px rgba(0,0,0,0.25);
 }
 
 /* Form controlled input styling */
 .form-input {
   width: 100%;
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
   padding: 10px 14px;
   font-size: 14px;
-  color: #fff;
+  color: #1B2B5B;
   transition: all 0.2s ease;
 }
 .form-input:focus {
   outline: none;
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+  border-color: #0057B8;
+  box-shadow: 0 0 0 3px rgba(0, 87, 184, 0.12);
 }
-.theme-light .form-input {
-  background-color: #fff;
-  border-color: #cbd5e1;
-  color: #0f172a;
+[data-theme="dark"] .form-input {
+  background-color: #1E293B;
+  border-color: #334155;
+  color: #F1F5F9;
 }
-.theme-light .form-input:focus {
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+[data-theme="dark"] .form-input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ── Global Light Theme Adaptations ── */
+.theme-light .bg-slate-900,
+.theme-light .bg-slate-900\/60,
+.theme-light .bg-slate-900\/80,
+.theme-light .bg-slate-900\/50 {
+  background-color: var(--color-surface-2) !important;
+  color: var(--color-text-primary-light) !important;
+}
+
+.theme-light .bg-slate-950 {
+  background-color: var(--color-surface-1) !important;
+  color: var(--color-text-primary-light) !important;
+}
+
+.theme-light .border-slate-800,
+.theme-light .border-slate-850,
+.theme-light .border-slate-900,
+.theme-light .border-slate-800\/80 {
+  border-color: var(--color-surface-3) !important;
+}
+
+.theme-light .text-slate-100,
+.theme-light .text-slate-200,
+.theme-light .text-slate-300,
+.theme-light .text-slate-350,
+.theme-light .text-slate-400,
+.theme-light .text-slate-450 {
+  color: var(--color-text-primary-light) !important;
+}
+
+.theme-light .text-slate-500 {
+  color: var(--color-text-secondary-light) !important;
+}
+
+.theme-light select,
+.theme-light input[type="text"],
+.theme-light input[type="number"],
+.theme-light input[type="email"],
+.theme-light input[type="password"],
+.theme-light textarea {
+  background-color: var(--color-surface-1) !important;
+  border-color: var(--color-surface-3) !important;
+  color: var(--color-text-primary-light) !important;
 }

@@ -12,13 +12,15 @@ class FamilyService
      * The family repository.
      */
     protected FamilyRepository $familyRepo;
+    protected FamilyCodeService $codeService;
 
     /**
      * FamilyService constructor.
      */
-    public function __construct(FamilyRepository $familyRepo)
+    public function __construct(FamilyRepository $familyRepo, FamilyCodeService $codeService)
     {
         $this->familyRepo = $familyRepo;
+        $this->codeService = $codeService;
     }
 
     /**
@@ -34,9 +36,13 @@ class FamilyService
      */
     public function registerFamily(array $data): Family
     {
-        // Enforce UUID generation for family ID if not supplied (for offline sync)
+        if (empty($data['family_code']) && !empty($data['village_id'])) {
+            $data['family_code'] = $this->codeService->generateFamilyCode($data['village_id']);
+        }
+
+        // Enforce ID generation for family ID if not supplied (for offline sync)
         if (empty($data['id'])) {
-            $data['id'] = 'FAM-'.mt_rand(1000, 9999).'-'.mt_rand(100, 999);
+            $data['id'] = $data['family_code'] ?? 'FAM-'.mt_rand(1000, 9999).'-'.mt_rand(100, 999);
         }
 
         $family = $this->familyRepo->create($data);

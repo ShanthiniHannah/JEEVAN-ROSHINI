@@ -20,6 +20,17 @@ class Training extends Model
         'scheduled_date',
         'video_url',
         'quiz_questions',
+        'description',
+        'status',
+        'category',
+        'start_time',
+        'end_time',
+        'venue',
+        'venue_id',
+        'expected_participants',
+        'conducted_by',
+        'training_notes',
+        'outcome_summary',
     ];
 
     /**

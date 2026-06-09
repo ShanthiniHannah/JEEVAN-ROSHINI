@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
  */
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('jeevan_roshini_theme') || 'dark';
+    return localStorage.getItem('jeevan_roshini_theme') || 'light';
   });
 
   const isLight = theme === 'light';

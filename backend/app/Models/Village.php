@@ -6,12 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Village extends Model
 {
-    protected $keyType = 'string';
-
-    public $incrementing = false;
-
     protected $fillable = [
-        'id',
+        'village_code',
         'block_id',
         'name',
         'population',
@@ -44,5 +40,13 @@ class Village extends Model
     public function communityPrograms()
     {
         return $this->hasMany(CommunityProgram::class);
+    }
+
+    /**
+     * Get the individuals residing in this village through families.
+     */
+    public function individuals()
+    {
+        return $this->hasManyThrough(Individual::class, Family::class, 'village_id', 'family_id', 'id', 'id');
     }
 }

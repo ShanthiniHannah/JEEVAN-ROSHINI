@@ -15,7 +15,6 @@ class Visit extends Model
         'bp_diastolic',
         'notes',
         'gps_location',
-        'visit_photo_path',
         'follow_up_date',
     ];
 
@@ -23,6 +22,14 @@ class Visit extends Model
         'visit_date' => 'date',
         'follow_up_date' => 'date',
     ];
+
+    /**
+     * Get the photos captured during this visit.
+     */
+    public function photos()
+    {
+        return $this->hasMany(VisitPhoto::class);
+    }
 
     /**
      * Get the VHW staff member who logged the visit.

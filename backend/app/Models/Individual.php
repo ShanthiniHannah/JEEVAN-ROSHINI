@@ -9,12 +9,7 @@ class Individual extends Model
 {
     use SoftDeletes;
 
-    protected $keyType = 'string';
-
-    public $incrementing = false;
-
     protected $fillable = [
-        'id',
         'family_id',
         'name',
         'date_of_birth',
@@ -23,18 +18,40 @@ class Individual extends Model
         'mobile_number',
         'aadhaar_masked',
         'blood_group',
-        'pregnancy_status',
-        'vaccination_status',
-        'disability_status',
-        'allergy_history',
         'malnutrition_status',
         'living_alone',
         'status',
+        'individual_code',
+        'relationship',
+        'marital_status',
+        'education',
+        'occupation',
+        'income_per_month',
+        'resident_status',
+        'photo_path',
+        'allergy_history',
+        'disability_status',
+        'vaccination_status',
+        'pregnancy_status',
+        'risk_category',
+        'remarks',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
     ];
+
+    protected $with = ['healthProfile'];
+
+    protected static function booted()
+    {
+        static::saved(function ($individual) {
+            if ($individual->relationLoaded('healthProfile') && $individual->healthProfile) {
+                $individual->healthProfile->individual_id = $individual->id;
+                $individual->healthProfile->save();
+            }
+        });
+    }
 
     /**
      * Get the family this individual belongs to.
@@ -125,6 +142,14 @@ class Individual extends Model
     }
 
     /**
+     * Get the health profile associated with this individual.
+     */
+    public function healthProfile()
+    {
+        return $this->hasOne(HealthProfile::class);
+    }
+
+    /**
      * Polymorphic documents (prescriptions, photos, govt docs, etc.)
      */
     public function documents()
@@ -146,5 +171,87 @@ class Individual extends Model
     public function scopeAtRisk($query)
     {
         return $query->whereHas('riskAlerts', fn ($q) => $q->where('status', 'Active'));
+    }
+
+    /**
+     * Helper to get or create the associated HealthProfile model.
+     */
+    protected function getOrCreateHealthProfile()
+    {
+        if ($this->relationLoaded('healthProfile') && $this->healthProfile) {
+            return $this->healthProfile;
+        }
+
+        $profile = null;
+        if ($this->exists) {
+            $profile = $this->healthProfile()->first();
+        }
+
+        if (!$profile) {
+            $profile = new HealthProfile();
+        }
+
+        $this->setRelation('healthProfile', $profile);
+        return $profile;
+    }
+
+    public function getPregnancyStatusAttribute()
+    {
+        return $this->healthProfile?->pregnancy_status;
+    }
+
+    public function setPregnancyStatusAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->pregnancy_status = $value;
+    }
+
+    public function getVaccinationStatusAttribute()
+    {
+        return $this->healthProfile?->vaccination_status;
+    }
+
+    public function setVaccinationStatusAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->vaccination_status = $value;
+    }
+
+    public function getDisabilityStatusAttribute()
+    {
+        return $this->healthProfile?->disability_status;
+    }
+
+    public function setDisabilityStatusAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->disability_status = $value;
+    }
+
+    public function getAllergyHistoryAttribute()
+    {
+        return $this->healthProfile?->allergy_history;
+    }
+
+    public function setAllergyHistoryAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->allergy_history = $value;
+    }
+
+    public function getRiskCategoryAttribute()
+    {
+        return $this->healthProfile?->risk_category;
+    }
+
+    public function setRiskCategoryAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->risk_category = $value;
+    }
+
+    public function getRemarksAttribute()
+    {
+        return $this->healthProfile?->remarks;
+    }
+
+    public function setRemarksAttribute($value)
+    {
+        $this->getOrCreateHealthProfile()->remarks = $value;
     }
 }

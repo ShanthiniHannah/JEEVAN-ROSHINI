@@ -13,16 +13,23 @@ return new class extends Migration
     {
         // 1. Family Registry
         Schema::create('families', function (Blueprint $table) {
-            $table->string('id')->primary(); // Custom ID e.g., FAM-4829-102
-            $table->string('village_id');
-            $table->foreign('village_id')->references('id')->on('villages')->onDelete('cascade');
+            $table->id(); // BigInt Auto-Incrementing PK
+            $table->string('family_code', 40)->unique(); // e.g. KA-CHK-KAD-GND-000001
+            $table->foreignId('state_id')->nullable()->constrained('states')->onDelete('set null');
+            $table->foreignId('district_id')->nullable()->constrained('districts')->onDelete('set null');
+            $table->foreignId('block_id')->nullable()->constrained('blocks')->onDelete('set null');
+            $table->foreignId('village_id')->constrained('villages')->onDelete('cascade');
             $table->string('house_no');
             $table->text('address')->nullable();
             $table->string('economic_status')->default('BPL'); // BPL, APL, Antyodaya
             $table->string('occupation')->nullable();
             $table->string('drinking_water_source')->default('Tap'); // Tap, Well, Handpump, River
             $table->string('toilet_availability')->default('Yes'); // Yes, No
+            $table->string('cooking_source', 30)->default('LPG'); // LPG, Wood, Coal, Kerosene
             $table->string('insurance_details')->nullable();
+            $table->string('family_photo_path')->nullable(); // Laravel storage relative path
+            $table->foreignId('vhw_id')->nullable()->constrained('users')->onDelete('set null'); // VHW who registered
+            $table->date('registration_date')->nullable();
             $table->string('status')->default('Active'); // Active, Migrated, Inactive
             $table->softDeletes(); // Never permanently delete family records
             $table->timestamps();
@@ -30,20 +37,23 @@ return new class extends Migration
 
         // 2. Individual Health Registry
         Schema::create('individuals', function (Blueprint $table) {
-            $table->string('id')->primary(); // Custom ID e.g., JR-4829-01
-            $table->string('family_id');
-            $table->foreign('family_id')->references('id')->on('families')->onDelete('cascade');
+            $table->id(); // BigInt Auto-Incrementing PK
+            $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
+            $table->string('individual_code', 45)->unique(); // e.g. KA-CHK-KAD-GND-000001-01
             $table->string('name');
+            $table->string('relationship', 30)->nullable(); // Head, Spouse, Son, Daughter, Parent, Other
             $table->date('date_of_birth')->nullable(); // Use DOB instead of age for accuracy
-            $table->integer('age'); // Kept for quick lookup / legacy
+            $table->integer('age'); // Kept for quick lookup / sync
             $table->string('gender'); // Male, Female, Other
             $table->string('mobile_number')->nullable();
             $table->string('aadhaar_masked')->nullable();
             $table->string('blood_group')->nullable();
-            $table->string('pregnancy_status')->default('No'); // Yes, No
-            $table->string('vaccination_status')->default('None'); // Full, Partial, None
-            $table->string('disability_status')->default('No'); // Yes, No
-            $table->text('allergy_history')->nullable();
+            $table->string('marital_status', 20)->nullable(); // Single, Married, Widowed, Divorced
+            $table->string('education', 30)->nullable(); // Illiterate, Primary, etc.
+            $table->string('occupation', 40)->nullable();
+            $table->decimal('income_per_month', 10, 2)->nullable();
+            $table->string('resident_status', 20)->default('Permanent'); // Permanent, Temporary, Migrant
+            $table->string('photo_path')->nullable(); // Laravel storage relative path
             $table->string('malnutrition_status')->default('none'); // none, moderate, severe
             $table->string('living_alone')->default('no'); // yes, no
             $table->string('status')->default('Active'); // Active, Migrated, Deceased
@@ -52,12 +62,9 @@ return new class extends Migration
         });
 
         // 3. Electronic Community Health Records (ECHR) — Vitals Snapshot
-        // NOTE: Full clinical data is split into separate ECHR tables (migration 000006)
-        // This table stores the latest baseline vitals only.
         Schema::create('health_records', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->decimal('height_cm', 5, 2)->nullable();
             $table->decimal('weight_kg', 5, 2)->nullable();
             $table->integer('bp_systolic')->nullable();
@@ -77,8 +84,7 @@ return new class extends Migration
         // 4. Clinical Risk Alerts (Rule-based — auto-generated by RiskAlertService)
         Schema::create('risk_alerts', function (Blueprint $table) {
             $table->id();
-            $table->string('individual_id');
-            $table->foreign('individual_id')->references('id')->on('individuals')->onDelete('cascade');
+            $table->foreignId('individual_id')->constrained('individuals')->onDelete('cascade');
             $table->string('type'); // Hypertension, SAM, High-Risk-Pregnancy, Missed-Followup, etc.
             $table->string('severity'); // low, medium, high, critical
             $table->text('reason'); // Auto-generated rule description

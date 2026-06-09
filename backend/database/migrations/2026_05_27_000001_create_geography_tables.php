@@ -22,16 +22,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 2. Districts
-        Schema::create('districts', function (Blueprint $table) {
+        // 2. States of India
+        Schema::create('states', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('name');
-            $table->string('state')->default('Karnataka');
+            $table->string('code', 5)->unique(); // e.g. KA, TN, MH
+            $table->string('region')->nullable(); // North, South, East, West, Northeast, Central, UT
+            $table->string('type')->default('State'); // State, Union Territory
+            $table->string('status')->default('Active'); // Active, Inactive
             $table->timestamps();
         });
 
-        // 3. Blocks/Taluks
+        // 3. Districts
+        Schema::create('districts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('state_id')->nullable()->constrained('states')->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        // 4. Blocks/Taluks
         Schema::create('blocks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
@@ -40,9 +51,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 4. Villages Mapping
+        // 5. Villages Mapping
         Schema::create('villages', function (Blueprint $table) {
-            $table->string('id')->primary(); // Custom string ID e.g., VLG-4829
+            $table->id(); // Auto-incrementing bigint PK
+            $table->string('village_code', 30)->unique(); // Custom string ID e.g., VLG-4829
             $table->foreignId('block_id')->constrained('blocks')->onDelete('cascade');
             $table->string('name');
             $table->integer('population')->default(0);
@@ -63,6 +75,7 @@ return new class extends Migration
         Schema::dropIfExists('villages');
         Schema::dropIfExists('blocks');
         Schema::dropIfExists('districts');
+        Schema::dropIfExists('states');
         Schema::dropIfExists('organizations');
     }
 };
