@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="frontend/public/login-bg-new.png" alt="Jeevan Roshini Banner" width="100%" style="border-radius:12px;"/>
-
 # ✨ Jeevan Roshini
 ### जीवन रोशनी | ஜீவன் ரோஷினி | ജീവൻ റോഷ്നി
 
